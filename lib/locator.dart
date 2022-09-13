@@ -6,6 +6,6 @@ import 'package:lix/services/snackbar.dart';
 final locator = GetIt.instance;
 void setupLocator() {
   locator.registerLazySingleton(() => HelperService());
-  locator.registerLazySingleton(() => APIServices());
+  locator.registerLazySingleton(() => APIService());
   locator.registerLazySingleton(() => SnackBarService());
 }

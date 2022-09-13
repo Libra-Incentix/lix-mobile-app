@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
 import 'package:lix/screens/notification_settings.dart';
+import 'package:lix/screens/views/login_view.dart';
 import 'package:lix/screens/widgets/settings_item.dart';
+import 'package:lix/services/helper.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -74,7 +77,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             text: "Privacy",
           ),
           SettingsItem(
-            onTap: () {},
+            onTap: () {
+              locator<HelperService>().logout();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: ((context) => const LoginView()),
+                ),
+                (route) => false,
+              );
+            },
             icon: ImageAssets.settingIconLogout,
             text: "Logout",
           ),

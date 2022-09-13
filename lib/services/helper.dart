@@ -50,6 +50,7 @@ class HelperService {
         user.createdAt = _prefs!.getString('user-createdAt');
         user.updatedAt = _prefs!.getString('user-updatedAt');
         user.emailVerifiedAt = _prefs!.getString('user-emailVerifiedAt');
+        user.userToken = _prefs!.getString('user-token');
 
         _user = user;
         return user;
@@ -76,6 +77,7 @@ class HelperService {
     await _prefs!.setString('user-createdAt', user.createdAt!);
     await _prefs!.setString('user-updatedAt', user.updatedAt!);
     await _prefs!.setString('user-emailVerifiedAt', user.emailVerifiedAt!);
+    await _prefs!.setString('user-token', user.userToken!);
 
     await _prefs!.setBool('loggedIn', true);
     await retrievingUserDetails();
@@ -101,6 +103,7 @@ class HelperService {
     await _prefs!.remove('user-createdAt');
     await _prefs!.remove('user-updatedAt');
     await _prefs!.remove('user-emailVerifiedAt');
+    await _prefs!.remove('user-token');
 
     await _prefs!.setBool('loggedIn', false);
   }

@@ -90,7 +90,9 @@ class _VerifyOTPViewState extends State<VerifyOTPView> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                  MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  ),
                 );
               },
               text: "Verify",

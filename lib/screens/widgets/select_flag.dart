@@ -9,13 +9,13 @@ class SelectFlag extends StatefulWidget {
   var text = "";
   String icon = "";
   var isSelected = false;
-  SelectFlag(
-      {Key? key,
-      required this.onTap,
-      required this.icon,
-      required this.text,
-      required this.isSelected})
-      : super(key: key);
+  SelectFlag({
+    Key? key,
+    required this.onTap,
+    required this.icon,
+    required this.text,
+    required this.isSelected,
+  }) : super(key: key);
 
   @override
   State<SelectFlag> createState() => _SelectFlagState();
@@ -30,14 +30,21 @@ class _SelectFlagState extends State<SelectFlag> {
       margin: const EdgeInsets.fromLTRB(18, 4, 18, 0),
       decoration: const BoxDecoration(
         border: Border(
-            bottom: BorderSide(width: 2, color: ColorSelect.appThemeGrey)),
+          bottom: BorderSide(
+            width: 2,
+            color: ColorSelect.appThemeGrey,
+          ),
+        ),
       ),
       child: ListTile(
         onTap: () {
           widget.onTap(widget.text);
         },
         contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        title: Text(widget.text, style: textStyleBoldBlack(16)),
+        title: Text(
+          widget.text,
+          style: textStyleBoldBlack(16),
+        ),
         leading: Image(
           image: AssetImage(widget.icon),
           fit: BoxFit.fitHeight,

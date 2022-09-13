@@ -12,6 +12,7 @@ class User {
   String? createdAt;
   String? updatedAt;
   String? emailVerifiedAt;
+  String? userToken;
 
   User({
     this.id,
@@ -27,6 +28,7 @@ class User {
     this.createdAt,
     this.updatedAt,
     this.emailVerifiedAt,
+    this.userToken,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class User {
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
       emailVerifiedAt: json['emailVerifiedAt'] ?? '',
+      userToken: json['user-token'] ?? '',
     );
   }
 }

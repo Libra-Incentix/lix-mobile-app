@@ -19,9 +19,13 @@ class _ValidateTextState extends State<ValidateText> {
   Widget build(BuildContext context) {
     if (widget.isVisible) {
       return Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(widget.text, style: textStyleValidation(14)));
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(
+          widget.text,
+          style: textStyleValidation(14),
+        ),
+      );
     } else {
       return Container();
     }
