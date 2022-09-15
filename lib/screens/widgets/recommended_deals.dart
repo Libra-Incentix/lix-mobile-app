@@ -2,24 +2,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
+import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 
 class RecommendedDeals extends StatefulWidget {
-  Function onTap;
-  var productsList = [];
-  var viewAllOption = true;
-  RecommendedDeals(
-      {Key? key,
-      required this.onTap,
-      required this.productsList,
-      required this.viewAllOption})
-      : super(key: key);
+  final Function onTap;
+  final List<MarketOffer> productsList;
+  final bool viewAllOption;
+  const RecommendedDeals({
+    Key? key,
+    required this.onTap,
+    required this.productsList,
+    required this.viewAllOption,
+  }) : super(key: key);
 
   @override
   State<RecommendedDeals> createState() => _RecommendedDealsState();
 }
 
 class _RecommendedDealsState extends State<RecommendedDeals> {
+  late List<MarketOffer> allOffers = widget.productsList;
   double getTopMargin() {
     if (widget.viewAllOption) {
       return 16;
@@ -40,81 +42,110 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Recommended', style: textStyleBoldBlack(16)),
-                Text('View All', style: textStyleViewAll(12)),
+                Text(
+                  'Recommended',
+                  style: textStyleBoldBlack(16),
+                ),
+                Text(
+                  'View All',
+                  style: textStyleViewAll(12),
+                ),
               ],
             ),
           Container(
-              margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-              child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.productsList.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        widget.onTap();
-                      },
-                      child: Container(
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 0, 16),
-                              height: 160,
-                              alignment: Alignment.bottomLeft,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image: AssetImage(widget.productsList[index]
-                                            ["picture"]
-                                        .toString()),
-                                    fit: BoxFit.fitWidth),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(4.0),
-                                child: Image(
-                                    height: 50,
-                                    width: 50,
-                                    image: AssetImage(widget.productsList[index]
-                                            ["logo"]
-                                        .toString()),
-                                    fit: BoxFit.cover),
-                              ),
+            margin: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: allOffers.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    widget.onTap();
+                  },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 0, 16),
+                          height: 160,
+                          alignment: Alignment.bottomLeft,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: provideDealImage(allOffers[index]),
+                              fit: BoxFit.fitWidth,
                             ),
-                            Container(
-                                height: 70,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                                decoration: const BoxDecoration(
-                                    color: ColorSelect.appThemeGrey,
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(4),
-                                        bottomRight: Radius.circular(4))),
-                                width: MediaQuery.of(context).size.width,
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 12, 0, 12),
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        widget.productsList[index]["name"]
-                                            .toString(),
-                                        style: textStyleBoldBlack(16)),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                        widget.productsList[index]["desc"]
-                                            .toString(),
-                                        style: textStyleRegularBlack(14)),
-                                  ],
-                                )),
-                          ],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4.0),
+                            child: Image(
+                              height: 50,
+                              width: 50,
+                              image: provideLogoImage(allOffers[index]),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  }))
+                        Container(
+                          height: 70,
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                          decoration: const BoxDecoration(
+                            color: ColorSelect.appThemeGrey,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(4),
+                              bottomRight: Radius.circular(4),
+                            ),
+                          ),
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.fromLTRB(16, 12, 0, 12),
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                allOffers[index].organisation!.name!,
+                                style: textStyleBoldBlack(16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                allOffers[index].benefit ?? '',
+                                overflow: TextOverflow.ellipsis,
+                                style: textStyleRegularBlack(14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
         ],
       ),
     );
+  }
+
+  ImageProvider provideLogoImage(MarketOffer offer) {
+    // TODO remove this once done.
+    // if (offer.offerImage != null && offer.offerImage!.contains('http')) {
+    //   return NetworkImage(
+    //     offer.offerImage!,
+    //   );
+    // }
+    return const AssetImage("assets/icons/ic_brand_1.png");
+  }
+
+  ImageProvider provideDealImage(MarketOffer offer) {
+    // TODO remove this once done.
+    // if (offer.offerImage != null && offer.offerImage!.contains('http')) {
+    //   return NetworkImage(
+    //     offer.offerImage!,
+    //   );
+    // }
+    return const AssetImage("assets/images/ic_home_1.png");
   }
 }

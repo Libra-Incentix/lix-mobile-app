@@ -6,7 +6,9 @@ import 'package:lix/models/country_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
+import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 
@@ -88,85 +90,38 @@ class _MyProfileViewState extends State<MyProfileView> {
     super.initState();
   }
 
-  // void showCountryModal(
-  //   BuildContext context,
-  //   List<Country> countryList,
-  // ) {
-  //   showModalBottomSheet(
-  //       isScrollControlled: true,
-  //       shape: const RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.all(Radius.circular(10.0)),
-  //       ),
-  //       context: context,
-  //       builder: (context) {
-  //         return StatefulBuilder(
-  //             builder: (BuildContext context, StateSetter setState) {
-  //           return Container(
-  //             height: MediaQuery.of(context).size.height - 80,
-  //             color: Colors.transparent,
-  //             child: Container(
-  //                 decoration: const BoxDecoration(
-  //                   color: Colors.white,
-  //                   borderRadius: BorderRadius.only(
-  //                       topLeft: Radius.circular(20.0),
-  //                       topRight: Radius.circular(20.0)),
-  //                 ),
-  //                 child: Column(
-  //                   children: [
-  //                     const SizedBox(
-  //                       height: 6,
-  //                     ),
-  //                     customAppBar("Select Country", context),
-  //                     const SizedBox(
-  //                       height: 6,
-  //                     ),
-  //                     Container(
-  //                       height: 46,
-  //                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-  //                       child: inputField("Search", _searchCountryController,
-  //                           false, context, () {}, TextInputType.text,
-  //                           showPrefix: true),
-  //                     ),
-  //                     const SizedBox(
-  //                       height: 10,
-  //                     ),
-  //                     Expanded(
-  //                       flex: 1,
-  //                       child: ListView.builder(
-  //                           itemCount: countryList.length,
-  //                           itemBuilder: (context, index) {
-  //                             return SelectFlag(
-  //                                 onTap: (countryName) {
-  //                                   setState(() {
-  //                                     selectedCountry = countryName;
-  //                                   });
-  //                                 },
-  //                                 icon: countryList[index]["countryFlag"]
-  //                                     .toString(),
-  //                                 text: countryList[index]["countryName"]
-  //                                     .toString(),
-  //                                 isSelected: countryList[index]["countryName"]
-  //                                         .toString() ==
-  //                                     selectedCountry);
-  //                           }),
-  //                     ),
-  //                     Container(
-  //                       padding: const EdgeInsets.all(10),
-  //                       child: SubmitButton(
-  //                           onTap: () {
-  //                             Navigator.pop(context);
-  //                           },
-  //                           text: "Change Country",
-  //                           disabled: false,
-  //                           color: Colors.black),
-  //                     ),
-  //                     const SizedBox(height: 20),
-  //                   ],
-  //                 )),
-  //           );
-  //         });
-  //       });
-  // }
+  void showCountryModal(
+    BuildContext context,
+    List<Country> countryList,
+  ) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      context: context,
+      builder: (context) {
+        return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Container(
+              height: MediaQuery.of(context).size.height - 80,
+              color: Colors.transparent,
+              child: CountryPhoneSelector(
+                countryList: countryList,
+                onChanged: (Country country) {
+                  setState(() {
+                    selectedCountry = country;
+                  });
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -222,18 +177,23 @@ class _MyProfileViewState extends State<MyProfileView> {
                   children: [
                     const CircleAvatar(
                       radius: 50.0,
-                      backgroundImage:
-                          AssetImage('assets/icons/profile_user.png'),
+                      backgroundImage: AssetImage(
+                        'assets/icons/profile_user.png',
+                      ),
                       backgroundColor: Colors.transparent,
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      "Edit",
-                      style: textStyleViewAll(14),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {},
+                      child: Text(
+                        "Edit",
+                        style: textStyleViewAll(14),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     inputField(
-                      "Last Name",
+                      "Name",
                       _nameController,
                       false,
                       context,
@@ -253,13 +213,14 @@ class _MyProfileViewState extends State<MyProfileView> {
                     Row(
                       children: [
                         Theme(
-                          data: Theme.of(context)
-                              .copyWith(dividerColor: Colors.transparent),
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
                           child: Expanded(
                             flex: 1,
                             child: GestureDetector(
                               onTap: () {
-                                // showCountryModal(context, countries);
+                                showCountryModal(context, countries);
                               },
                               child: Container(
                                 alignment: Alignment.centerRight,
@@ -274,16 +235,22 @@ class _MyProfileViewState extends State<MyProfileView> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     const SizedBox(width: 2),
-                                    const Image(
+                                    Image(
                                       height: 18,
                                       width: 24,
-                                      image: AssetImage(ImageAssets.flagUAE),
+                                      image: AssetImage(
+                                        selectedCountry!.flag!,
+                                      ),
                                       fit: BoxFit.cover,
                                     ),
-                                    Text("+971",
-                                        style: textStyleRegularBlack(14)),
-                                    const Icon(Icons.keyboard_arrow_down,
-                                        size: 20)
+                                    Text(
+                                      selectedCountry!.phoneCode!,
+                                      style: textStyleRegularBlack(14),
+                                    ),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 20,
+                                    )
                                   ],
                                 ),
                               ),
@@ -292,31 +259,19 @@ class _MyProfileViewState extends State<MyProfileView> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                            flex: 2,
-                            child: inputField("Phone number", _phoneController,
-                                false, context, () {}, TextInputType.number))
+                          flex: 2,
+                          child: inputField(
+                            "Phone number",
+                            _phoneController,
+                            false,
+                            context,
+                            () {},
+                            TextInputType.number,
+                          ),
+                        )
                       ],
                     ),
                     const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: () => {},
-                      behavior: HitTestBehavior.translucent,
-                      child: Container(
-                        height: 50,
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.only(
-                          left: 8,
-                        ),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: const BoxDecoration(
-                          color: ColorSelect.appThemeGrey,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Date Of Birth'),
-                      ),
-                    ),
                     inputField(
                       "Date of Birth",
                       _dobController,
@@ -328,9 +283,15 @@ class _MyProfileViewState extends State<MyProfileView> {
                     ),
                     ExpansionTile(
                       tilePadding: EdgeInsets.fromLTRB(
-                          0, 0, MediaQuery.of(context).size.width / 2.2, 0),
+                        0,
+                        0,
+                        MediaQuery.of(context).size.width / 2.2,
+                        0,
+                      ),
                       childrenPadding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 0),
+                        vertical: 0,
+                        horizontal: 0,
+                      ),
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.topLeft,
                       maintainState: true,
@@ -341,11 +302,23 @@ class _MyProfileViewState extends State<MyProfileView> {
                         style: textStyleViewAll(14),
                       ),
                       children: <Widget>[
-                        inputField("Password", _passwordController, true,
-                            context, () {}, TextInputType.text),
+                        inputField(
+                          "Password",
+                          _passwordController,
+                          true,
+                          context,
+                          () {},
+                          TextInputType.text,
+                        ),
                         const SizedBox(height: 16),
-                        inputField("Confirm Password", _confirmPassController,
-                            true, context, () {}, TextInputType.text),
+                        inputField(
+                          "Confirm Password",
+                          _confirmPassController,
+                          true,
+                          context,
+                          () {},
+                          TextInputType.text,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),

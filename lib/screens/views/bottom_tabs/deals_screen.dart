@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
+import 'package:lix/models/custom_exception.dart';
+import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/deal_details_screen.dart';
 import 'package:lix/screens/widgets/category_item.dart';
 import 'package:lix/screens/widgets/recommended_deals.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 
 class DealsScreen extends StatefulWidget {
   const DealsScreen({Key? key}) : super(key: key);
@@ -94,6 +101,59 @@ class _DealsScreenState extends State<DealsScreen> {
       "desc": "Luxury stay in Dubai"
     },
   ];
+  bool loading = false;
+  APIService apiService = locator<APIService>();
+  HelperService helperService = locator<HelperService>();
+  late User user = locator<HelperService>().getCurrentUser()!;
+  SnackBarService snackBarService = locator<SnackBarService>();
+  List<MarketOffer> allOffers = [];
+
+  showLoading() {
+    setState(() {
+      if (!mounted) return;
+      loading = true;
+    });
+  }
+
+  hideLoading() {
+    setState(() {
+      if (!mounted) return;
+      loading = false;
+    });
+  }
+
+  initialize() async {
+    try {
+      showLoading();
+      List<MarketOffer> offers = await apiService.allMarketOffers(user);
+      hideLoading();
+      setState(() {
+        if (!mounted) return;
+        allOffers = offers;
+      });
+    } on CustomException catch (e) {
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          e.message,
+        ),
+      );
+    } catch (e) {
+      hideLoading();
+    }
+  }
+
+  @override
+  void initState() {
+    initialize();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,24 +165,29 @@ class _DealsScreenState extends State<DealsScreen> {
         title: const Text(
           "Deals",
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-              fontFamily: 'Inter'),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+            fontFamily: 'Inter',
+          ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-                margin: const EdgeInsets.fromLTRB(16, 6, 0, 18),
-                height: 40.0,
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: catList.length,
-                    itemBuilder: (context, index) {
-                      return CategoryItem(
+      body: loading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 6, 0, 18),
+                    height: 40.0,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: catList.length,
+                      itemBuilder: (context, index) {
+                        return CategoryItem(
                           itemIndex: index,
                           onTap: (itemIndex) {
                             setState(() {
@@ -130,42 +195,53 @@ class _DealsScreenState extends State<DealsScreen> {
                               // catList[itemIndex].selected = true;
                             });
                           },
-                          text: catList[index]["name"].toString(),
-                          selected: (index == selectedCategory));
-                    })),
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('All Deals', style: textStyleMediumBlack(24)),
-                  Row(
-                    children: [
-                      const Image(
-                        image: AssetImage(ImageAssets.sortArrowIcon),
-                        height: 16,
-                        width: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Text('Sort', style: textStyleViewAll(12)),
-                    ],
+                          text: (catList[index]["name"] as String),
+                          selected: (index == selectedCategory),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('All Deals', style: textStyleMediumBlack(24)),
+                        Row(
+                          children: [
+                            const Image(
+                              image: AssetImage(
+                                ImageAssets.sortArrowIcon,
+                              ),
+                              height: 16,
+                              width: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Sort',
+                              style: textStyleViewAll(12),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // TODO this is commented because of coming from changes in RecommendedDeals page.
+                  RecommendedDeals(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DealDetailsScreen(),
+                        ),
+                      );
+                    },
+                    productsList: allOffers,
+                    viewAllOption: false,
                   ),
                 ],
               ),
             ),
-            RecommendedDeals(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DealDetailsScreen()),
-                  );
-                },
-                productsList: dealsList,
-                viewAllOption: false),
-          ],
-        ),
-      ),
     );
   }
 }

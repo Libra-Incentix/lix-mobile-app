@@ -244,7 +244,7 @@ class _LoginViewState extends State<LoginView> {
       showLoading();
       if (isRegistered) {
         User user = await apiServices.login(email, password);
-        helperService.saveUserDetails(user);
+        await helperService.saveUserDetails(user);
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,

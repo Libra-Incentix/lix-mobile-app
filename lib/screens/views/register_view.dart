@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
@@ -13,7 +11,6 @@ import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/screens/widgets/validate_text.dart';
-import 'package:collection/collection.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
@@ -31,8 +28,9 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   late String email = widget.email;
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  // final TextEditingController _firstNameController = TextEditingController();
+  // final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -69,14 +67,21 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Future<void> validateAndMove() async {
-    if (_firstNameController.text.isEmpty) {
-      setState(() {
-        validationFailed = true;
-      });
-      return;
-    }
+    // if (_firstNameController.text.isEmpty) {
+    //   setState(() {
+    //     validationFailed = true;
+    //   });
+    //   return;
+    // }
 
-    if (_lastNameController.text.isEmpty) {
+    // if (_lastNameController.text.isEmpty) {
+    //   setState(() {
+    //     validationFailed = true;
+    //   });
+    //   return;
+    // }
+
+    if (_nameController.text.isEmpty) {
       setState(() {
         validationFailed = true;
       });
@@ -114,8 +119,7 @@ class _RegisterViewState extends State<RegisterView> {
 
     try {
       showLoading();
-      String fullName =
-          '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
+      String fullName = _nameController.text.trim();
       String phoneNo =
           '${selectedCountry!.phoneCode}${_phoneController.text.trim()}';
       String password = _passwordController.text;
@@ -223,25 +227,17 @@ class _RegisterViewState extends State<RegisterView> {
                   child: Column(
                     children: [
                       inputField(
-                        "First Name",
-                        _firstNameController,
+                        "Name",
+                        _nameController,
                         false,
                         context,
                         onChanged,
                         TextInputType.name,
                       ),
                       ValidateText(
-                        isVisible: _firstNameController.text.isEmpty &&
-                            validationFailed,
-                        text: "Please enter your first name",
-                      ),
-                      const SizedBox(height: 16),
-                      inputField("Last Name", _lastNameController, false,
-                          context, onChanged, TextInputType.name),
-                      ValidateText(
-                        isVisible: _lastNameController.text.isEmpty &&
-                            validationFailed,
-                        text: "Please enter your last name",
+                        isVisible:
+                            _nameController.text.isEmpty && validationFailed,
+                        text: "Please enter your name",
                       ),
                       const SizedBox(height: 16),
                       Row(

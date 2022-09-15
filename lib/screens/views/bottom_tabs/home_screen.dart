@@ -8,6 +8,7 @@ import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/screens/views/notifications_view.dart';
+import 'package:lix/screens/views/scan_qr_view.dart';
 import 'package:lix/screens/widgets/earn_with_lix.dart';
 import 'package:lix/screens/widgets/exclusive_deals.dart';
 import 'package:lix/screens/widgets/recommended_deals.dart';
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool loading = false;
   APIService apiService = locator<APIService>();
   HelperService helperService = locator<HelperService>();
-  User user = locator<HelperService>().getCurrentUser()!;
+  late User user = locator<HelperService>().getCurrentUser()!;
   List<MarketOffer> allOffers = [];
 
   showLoading() {
@@ -191,15 +192,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 16),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              print('aa');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ScanQrView(),
+                                ),
+                              );
+                            },
                             child: Container(
                               alignment: Alignment.center,
                               height: 36,
                               width: 144,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(4),
-                                border:
-                                    Border.all(color: Colors.white, width: 1),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1,
+                                ),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -227,10 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // ----------Show Exclusive Details---------- //
-                ExclusiveDeals(onTap: () {}, productsList: allOffers),
+                ExclusiveDeals(
+                  onTap: () {},
+                  productsList: allOffers,
+                ),
                 RecommendedDeals(
                   onTap: () {},
-                  productsList: dealsList,
+                  productsList: allOffers,
                   viewAllOption: true,
                 ),
                 EarnWithLix(
@@ -238,7 +252,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const EarnDetailsScreen(),
+                        builder: (context) => const EarnDetailsScreen(
+                          code: '11',
+                        ),
                       ),
                     );
                   },

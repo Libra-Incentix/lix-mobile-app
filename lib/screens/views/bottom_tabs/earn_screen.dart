@@ -30,49 +30,58 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(
-            "Earn",
-            style: textStyleBoldBlack(16),
-          ),
+        elevation: 0,
+        title: Text(
+          "Earn",
+          style: textStyleBoldBlack(16),
         ),
-        body: ListView.builder(
-            itemCount: titles.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const EarnDetailsScreen()),
-                  );
-                },
-                title: Padding(
-                  padding: const EdgeInsets.only(bottom: 3.0),
-                  child: Text(titles[index],
-                      style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                          fontFamily: 'Inter')),
-                ),
-                subtitle: Text(subtitles[index],
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color.fromRGBO(210, 114, 84, 1),
-                        fontFamily: 'Inter')),
-                leading: Image(
-                  image: AssetImage(icons[index]),
-                  fit: BoxFit.fitHeight,
-                  height: 50,
-                  width: 50,
+      ),
+      body: ListView.builder(
+        itemCount: titles.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EarnDetailsScreen(code: '0'),
                 ),
               );
-            }));
+            },
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 3.0),
+              child: Text(
+                titles[index],
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                  fontFamily: 'Inter',
+                ),
+              ),
+            ),
+            subtitle: Text(
+              subtitles[index],
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color.fromRGBO(210, 114, 84, 1),
+                fontFamily: 'Inter',
+              ),
+            ),
+            leading: Image(
+              image: AssetImage(icons[index]),
+              fit: BoxFit.fitHeight,
+              height: 50,
+              width: 50,
+            ),
+          );
+        },
+      ),
+    );
   }
 }

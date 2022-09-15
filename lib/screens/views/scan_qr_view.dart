@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
-import 'package:lix/screens/widgets/purchase_coupondialog.dart';
+import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanQrView extends StatefulWidget {
@@ -37,7 +36,11 @@ class _ScanQrViewState extends State<ScanQrView> {
             return GestureDetector(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-                child: const Image(image: AssetImage(ImageAssets.arrowBack)),
+                child: const Image(
+                  image: AssetImage(
+                    ImageAssets.arrowBack,
+                  ),
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -47,17 +50,34 @@ class _ScanQrViewState extends State<ScanQrView> {
         ),
       ),
       body: MobileScanner(
-          allowDuplicates: false,
-          controller: MobileScannerController(
-              facing: CameraFacing.front, torchEnabled: true),
-          onDetect: (barcode, args) {
-            if (barcode.rawValue == null) {
-              debugPrint('Failed to scan Barcode');
-            } else {
-              final String code = barcode.rawValue!;
+        allowDuplicates: false,
+        controller: MobileScannerController(
+          facing: CameraFacing.back,
+          torchEnabled: true,
+        ),
+        onDetect: (barcode, args) {
+          if (barcode.rawValue == null) {
+            debugPrint('Failed to scan Barcode');
+          } else {
+            final String url =
+                barcode.rawValue != null ? barcode.rawValue! : '';
+            debugPrint('Barcode found! $url');
+            if (url.isNotEmpty) {
+              // code is not empty, extracting the id...
+              String code = url.split('/get/').last;
               debugPrint('Barcode found! $code');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EarnDetailsScreen(
+                    code: code,
+                  ),
+                ),
+              );
             }
-          }),
+          }
+        },
+      ),
     );
   }
 }

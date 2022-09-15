@@ -7,13 +7,29 @@ import 'package:lix/screens/widgets/claim_coupondialog.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 
 class EarnDetailsScreen extends StatefulWidget {
-  const EarnDetailsScreen({Key? key}) : super(key: key);
+  final String code;
+  const EarnDetailsScreen({
+    Key? key,
+    required this.code,
+  }) : super(key: key);
 
   @override
   State<EarnDetailsScreen> createState() => _EarnDetailsScreenState();
 }
 
 class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
+  late String code = widget.code;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
