@@ -76,7 +76,7 @@ class _ExclusiveDealsState extends State<ExclusiveDeals> {
                         padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                         alignment: Alignment.center,
                         child: Text(
-                          allOffers[index].organisation!.name!,
+                          allOffers[index].organisation?.name ?? '',
                           softWrap: true,
                           overflow: TextOverflow.ellipsis,
                         ),

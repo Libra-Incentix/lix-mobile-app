@@ -8,4 +8,5 @@ class ColorSelect {
   static const greyDark = Color.fromRGBO(115, 115, 115, 1);
   static const buttonGrey = Color.fromRGBO(217, 213, 213, 1);
   static const lightBlack = Color.fromRGBO(23, 23, 23, 1);
+  static const successGreen = Color.fromRGBO(152, 236, 179, 1);
 }

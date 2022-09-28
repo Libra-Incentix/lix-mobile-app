@@ -193,7 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 16),
                           GestureDetector(
                             onTap: () {
-                              print('aa');
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -253,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const EarnDetailsScreen(
-                          code: '11',
+                          data: null,
                         ),
                       ),
                     );

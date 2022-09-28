@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HelperService {
   SharedPreferences? _prefs;
   User? _user;
+  String defaultErrorMessage = 'Unexpected Error';
 
   HelperService();
 

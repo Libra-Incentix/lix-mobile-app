@@ -4,6 +4,7 @@ import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/screens/notification_settings.dart';
 import 'package:lix/screens/views/login_view.dart';
+import 'package:lix/screens/views/privacy_settings_screen.dart';
 import 'package:lix/screens/widgets/settings_item.dart';
 import 'package:lix/services/helper.dart';
 
@@ -61,18 +62,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: ImageAssets.settingIconBell,
             text: "Notifications",
           ),
-          SettingsItem(
-            onTap: () {},
-            icon: ImageAssets.settingIconLocation,
-            text: "Location",
-          ),
+          // SettingsItem(
+          //   onTap: () {},
+          //   icon: ImageAssets.settingIconLocation,
+          //   text: "Location",
+          // ),
           SettingsItem(
             onTap: () {},
             icon: ImageAssets.settingIconTerms,
             text: "Terms & conditions",
           ),
           SettingsItem(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PrivacySettingsScreen(),
+                ),
+              );
+            },
             icon: ImageAssets.settingIconPrivacy,
             text: "Privacy",
           ),

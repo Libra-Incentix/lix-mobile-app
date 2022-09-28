@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lix/models/country_model.dart';
+import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/screens/widgets/custom_appbar.dart';
 import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/select_flag.dart';
@@ -7,7 +8,7 @@ import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:collection/collection.dart';
 
 class CountryPhoneSelector extends StatefulWidget {
-  final List<Country> countryList;
+  final List<CountryPhone> countryList;
   Function onChanged;
   CountryPhoneSelector({
     Key? key,
@@ -20,9 +21,9 @@ class CountryPhoneSelector extends StatefulWidget {
 }
 
 class _CountryPhoneSelectorState extends State<CountryPhoneSelector> {
-  late List<Country> countryList = widget.countryList;
-  late List<Country> filteredCountries = widget.countryList;
-  Country? selectedCountry;
+  late List<CountryPhone> countryList = widget.countryList;
+  late List<CountryPhone> filteredCountries = widget.countryList;
+  CountryPhone? selectedCountry;
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -75,7 +76,7 @@ class _CountryPhoneSelectorState extends State<CountryPhoneSelector> {
               itemBuilder: (context, index) {
                 return SelectFlag(
                   onTap: (String countryName) {
-                    Country? c = filteredCountries.singleWhereOrNull(
+                    CountryPhone? c = filteredCountries.singleWhereOrNull(
                       (element) => element.name == countryName,
                     );
                     setState(() {
@@ -109,7 +110,7 @@ class _CountryPhoneSelectorState extends State<CountryPhoneSelector> {
     );
   }
 
-  bool isCountrySelected(Country country) {
+  bool isCountrySelected(CountryPhone country) {
     if (selectedCountry != null) {
       return country.id == selectedCountry!.id;
     }
@@ -118,8 +119,8 @@ class _CountryPhoneSelectorState extends State<CountryPhoneSelector> {
   }
 
   filteredCountryList() {
-    List<Country> countries = List.from(countryList);
-    List<Country> c = countries;
+    List<CountryPhone> countries = List.from(countryList);
+    List<CountryPhone> c = countries;
     if (searchController.text.isNotEmpty) {
       c = countries.where((element) {
         String query = searchController.text.toLowerCase();

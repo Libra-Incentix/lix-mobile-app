@@ -1,8 +1,16 @@
+import 'dart:async';
+
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
+import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/earn_details_screen.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 
 class ScanQrView extends StatefulWidget {
   const ScanQrView({Key? key}) : super(key: key);
@@ -12,8 +20,18 @@ class ScanQrView extends StatefulWidget {
 }
 
 class _ScanQrViewState extends State<ScanQrView> {
+  APIService apiService = locator<APIService>();
+  HelperService helperService = locator<HelperService>();
+  User user = locator<HelperService>().getCurrentUser()!;
+  SnackBarService snackBarService = locator<SnackBarService>();
+  ScanResult? scanResult;
+
   @override
   void initState() {
+    Timer(
+      const Duration(seconds: 1),
+      _scan,
+    );
     super.initState();
   }
 
@@ -30,7 +48,10 @@ class _ScanQrViewState extends State<ScanQrView> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("My Coupons", style: textStyleBoldBlack(16)),
+        title: Text(
+          "My Coupons",
+          style: textStyleBoldBlack(16),
+        ),
         leading: Builder(
           builder: (BuildContext context) {
             return GestureDetector(
@@ -49,35 +70,55 @@ class _ScanQrViewState extends State<ScanQrView> {
           },
         ),
       ),
-      body: MobileScanner(
-        allowDuplicates: false,
-        controller: MobileScannerController(
-          facing: CameraFacing.back,
-          torchEnabled: true,
-        ),
-        onDetect: (barcode, args) {
-          if (barcode.rawValue == null) {
-            debugPrint('Failed to scan Barcode');
-          } else {
-            final String url =
-                barcode.rawValue != null ? barcode.rawValue! : '';
-            debugPrint('Barcode found! $url');
-            if (url.isNotEmpty) {
-              // code is not empty, extracting the id...
-              String code = url.split('/get/').last;
-              debugPrint('Barcode found! $code');
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EarnDetailsScreen(
-                    code: code,
-                  ),
-                ),
-              );
-            }
-          }
-        },
-      ),
     );
+  }
+
+  Future<void> _scan() async {
+    try {
+      final result = await BarcodeScanner.scan(
+        options: const ScanOptions(
+          strings: {
+            'cancel': 'Cancel',
+            'flash_on': 'Flash On',
+            'flash_off': 'Flash Off',
+          },
+          autoEnableFlash: false,
+          android: AndroidOptions(
+            useAutoFocus: true,
+          ),
+        ),
+      );
+      setState(() => scanResult = result);
+
+      if (scanResult!.rawContent.contains('http')) {
+        // getting offer data...
+        dynamic result =
+            await apiService.verifyQRCodeLink(scanResult!.rawContent, user);
+        if (result['success'] != null && result['success']) {
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EarnDetailsScreen(
+                data: result['data'],
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              snackBarService.showSnackBarWithString(result['message'] ?? ''));
+        }
+      }
+    } on PlatformException catch (e) {
+      setState(() {
+        scanResult = ScanResult(
+          type: ResultType.Error,
+          format: BarcodeFormat.unknown,
+          rawContent: e.code == BarcodeScanner.cameraAccessDenied
+              ? 'The user did not grant the camera permission!'
+              : 'Unknown error: $e',
+        );
+      });
+    }
   }
 }

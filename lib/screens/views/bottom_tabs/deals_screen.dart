@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
+import 'package:lix/models/category_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/models/user.dart';
@@ -20,37 +21,6 @@ class DealsScreen extends StatefulWidget {
 }
 
 class _DealsScreenState extends State<DealsScreen> {
-  var selectedCategory = 0;
-  var catList = [
-    {
-      "name": "All",
-      "selected": true,
-    },
-    {
-      "name": "Fashion",
-      "selected": false,
-    },
-    {
-      "name": "Dining",
-      "selected": false,
-    },
-    {
-      "name": "Travel",
-      "selected": false,
-    },
-    {
-      "name": "Entertainment",
-      "selected": false,
-    },
-    {
-      "name": "Furniture",
-      "selected": false,
-    },
-    {
-      "name": "Leisure",
-      "selected": true,
-    }
-  ];
   var dealsList = [
     {
       "name": "Watchbox",
@@ -107,6 +77,7 @@ class _DealsScreenState extends State<DealsScreen> {
   late User user = locator<HelperService>().getCurrentUser()!;
   SnackBarService snackBarService = locator<SnackBarService>();
   List<MarketOffer> allOffers = [];
+  List<Category> allCategories = [];
 
   showLoading() {
     setState(() {
@@ -125,12 +96,25 @@ class _DealsScreenState extends State<DealsScreen> {
   initialize() async {
     try {
       showLoading();
+      // fetching all categories...
+      List<Category> categories = await apiService.getAllCategories(user);
+
+      // first setting all the categories
+      setState(() {
+        if (!mounted) return;
+        allCategories = categories;
+        allCategories[0].selected = true;
+      });
+
+      // fetching all market offers...
       List<MarketOffer> offers = await apiService.allMarketOffers(user);
-      hideLoading();
+
+      // setting all the market offers...
       setState(() {
         if (!mounted) return;
         allOffers = offers;
       });
+      hideLoading();
     } on CustomException catch (e) {
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -185,18 +169,20 @@ class _DealsScreenState extends State<DealsScreen> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
-                      itemCount: catList.length,
+                      itemCount: allCategories.length,
                       itemBuilder: (context, index) {
                         return CategoryItem(
-                          itemIndex: index,
-                          onTap: (itemIndex) {
+                          category: allCategories[index],
+                          onTap: (Category category) {
                             setState(() {
-                              selectedCategory = itemIndex;
-                              // catList[itemIndex].selected = true;
+                              for (Category element in allCategories) {
+                                element.selected = false;
+                              }
+                              Category c = category;
+                              c.selected = true;
+                              allCategories[index] = c;
                             });
                           },
-                          text: (catList[index]["name"] as String),
-                          selected: (index == selectedCategory),
                         );
                       },
                     ),

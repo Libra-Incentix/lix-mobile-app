@@ -48,7 +48,7 @@ class _EarnScreenState extends State<EarnScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EarnDetailsScreen(code: '0'),
+                  builder: (context) => const EarnDetailsScreen(data: null),
                 ),
               );
             },

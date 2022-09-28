@@ -1,12 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
-import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
-import 'package:lix/screens/views/dashboard.dart';
 import 'package:lix/screens/views/register_view.dart';
+import 'package:lix/screens/views/verify_otp_view.dart';
 import 'package:lix/screens/widgets/custom_appbar.dart';
 import 'package:lix/screens/widgets/image_button.dart';
 import 'package:lix/screens/widgets/input_field.dart';
@@ -14,6 +17,7 @@ import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/screens/widgets/validate_text.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
@@ -28,6 +32,7 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   HelperService helperService = locator<HelperService>();
   APIService apiServices = locator<APIService>();
+  SnackBarService snackBarService = locator<SnackBarService>();
 
   bool isFormInvalid = false;
   bool canSubmitForm = false;
@@ -243,21 +248,45 @@ class _LoginViewState extends State<LoginView> {
     try {
       showLoading();
       if (isRegistered) {
-        User user = await apiServices.login(email, password);
-        await helperService.saveUserDetails(user);
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Dashboard(),
+        Map<String, dynamic> response =
+            await apiServices.login(email, password);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          snackBarService.showSnackBarWithString(
+            response['message'],
+            type: (response['success'] ?? false)
+                ? SnackBarType.success
+                : SnackBarType.error,
           ),
         );
+
+        if (response['success']) {
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerifyOTPView(
+                email: email,
+              ),
+            ),
+          );
+        }
       } else {
-        bool alreadyRegistered = await apiServices.isEmailRegistered(email);
+        Map<String, dynamic> response =
+            await apiServices.isEmailRegistered(email);
+
         setState(() {
           if (!mounted) return;
-          isRegistered = alreadyRegistered;
+          isRegistered = response['success'] ?? false;
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          snackBarService.showSnackBarWithString(
+            response['message'],
+            type: isRegistered ? SnackBarType.success : SnackBarType.error,
+          ),
+        );
+
         if (!isRegistered) {
           moveLoginOrRegister();
         }
@@ -265,8 +294,18 @@ class _LoginViewState extends State<LoginView> {
       hideLoading();
     } on CustomException catch (e) {
       hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(e.message),
+      );
+      log('$e');
     } catch (e) {
       hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          helperService.defaultErrorMessage,
+        ),
+      );
+      log('$e');
     }
   }
 

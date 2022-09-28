@@ -3,6 +3,7 @@ import 'package:lix/locator.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/dashboard.dart';
 import 'package:lix/screens/views/intro_slider.dart';
+// import 'package:lix/services/auth.dart';
 import 'package:lix/services/helper.dart';
 
 void main() async {

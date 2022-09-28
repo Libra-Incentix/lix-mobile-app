@@ -105,7 +105,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                allOffers[index].organisation!.name!,
+                                allOffers[index].organisation?.name ?? '',
                                 style: textStyleBoldBlack(16),
                               ),
                               const SizedBox(height: 4),

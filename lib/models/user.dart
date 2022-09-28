@@ -1,5 +1,6 @@
 class User {
   int? id;
+  String? socialId;
   String? name;
   String? email;
   String? password;
@@ -16,6 +17,7 @@ class User {
 
   User({
     this.id,
+    this.socialId,
     this.name,
     this.email,
     this.password,
@@ -34,11 +36,12 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] ?? 0,
+      socialId: json['socialId'] ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       password: json['password'] ?? '',
       phone: json['phone'] ?? '',
-      gender: json['gender'] ?? '',
+      gender: json['gender'] ?? 'male',
       dateOfBirth: json['dateOfBirth'] ?? '',
       cityId: json['cityId'] ?? 0,
       stateId: json['stateId'] ?? 0,

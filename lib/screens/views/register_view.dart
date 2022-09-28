@@ -1,12 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
-import 'package:lix/models/country_model.dart';
+import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/dashboard.dart';
+import 'package:lix/screens/views/verify_otp_view.dart';
 import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
@@ -28,31 +31,20 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   late String email = widget.email;
-  // final TextEditingController _firstNameController = TextEditingController();
-  // final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  APIService apiServices = locator<APIService>();
+  APIService apiService = locator<APIService>();
+  SnackBarService snackBarService = locator<SnackBarService>();
   bool loading = false;
   bool validationFailed = false;
+  bool phoneLengthError = false;
   bool passwordMatchedFailed = false;
-  Country? selectedCountry;
-  List<Country> countries = [
-    Country(
-      id: 0,
-      name: 'Saudi Arabia',
-      flag: ImageAssets.flagSaudi,
-      phoneCode: '+966',
-    ),
-    Country(
-      id: 1,
-      name: 'United Arab Emirates',
-      flag: ImageAssets.flagUAE,
-      phoneCode: '+971',
-    ),
-  ];
+  CountryPhone? selectedCountry;
+  List<CountryPhone> countries = [];
+  int phoneMinLength = 10;
+  int phoneMaxLength = 10;
 
   showLoading() {
     setState(() {
@@ -67,20 +59,6 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Future<void> validateAndMove() async {
-    // if (_firstNameController.text.isEmpty) {
-    //   setState(() {
-    //     validationFailed = true;
-    //   });
-    //   return;
-    // }
-
-    // if (_lastNameController.text.isEmpty) {
-    //   setState(() {
-    //     validationFailed = true;
-    //   });
-    //   return;
-    // }
-
     if (_nameController.text.isEmpty) {
       setState(() {
         validationFailed = true;
@@ -94,6 +72,21 @@ class _RegisterViewState extends State<RegisterView> {
       });
       return;
     }
+
+    if (_phoneController.text.length < phoneMinLength ||
+        _phoneController.text.length > phoneMaxLength) {
+      setState(() {
+        validationFailed = true;
+        phoneLengthError = true;
+      });
+      return;
+    }
+
+    // all validation passed
+    setState(() {
+      validationFailed = false;
+      phoneLengthError = false;
+    });
 
     if (_passwordController.text.isEmpty ||
         _confirmPassController.text.isEmpty) {
@@ -115,16 +108,17 @@ class _RegisterViewState extends State<RegisterView> {
     setState(() {
       validationFailed = false;
       passwordMatchedFailed = false;
+      phoneLengthError = false;
     });
 
     try {
       showLoading();
       String fullName = _nameController.text.trim();
       String phoneNo =
-          '${selectedCountry!.phoneCode}${_phoneController.text.trim()}';
+          '${selectedCountry!.dialCode}${_phoneController.text.trim()}';
       String password = _passwordController.text;
 
-      User user = await apiServices.register(
+      Map<String, dynamic> response = await apiService.register(
         fullName,
         email,
         phoneNo,
@@ -132,15 +126,30 @@ class _RegisterViewState extends State<RegisterView> {
       );
 
       // user is registered auto login to the app...
-      user = await apiServices.login(email, password);
-
-      await locator<HelperService>().saveUserDetails(user);
+      Map<String, dynamic> lResponse = await apiService.login(email, password);
       hideLoading();
+
       // ignore: use_build_context_synchronously
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Dashboard()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          lResponse['message'] ?? '',
+          type: (lResponse['success'] ?? false)
+              ? SnackBarType.success
+              : SnackBarType.error,
+        ),
       );
+
+      if (lResponse['success']) {
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyOTPView(
+              email: email,
+            ),
+          ),
+        );
+      }
     } on CustomException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         locator<SnackBarService>().showSnackBarWithString(
@@ -156,7 +165,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   void showCountryModal(
     BuildContext context,
-    List<Country> countryList,
+    List<CountryPhone> countryList,
   ) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -174,9 +183,11 @@ class _RegisterViewState extends State<RegisterView> {
               color: Colors.transparent,
               child: CountryPhoneSelector(
                 countryList: countryList,
-                onChanged: (Country country) {
+                onChanged: (CountryPhone country) {
                   setState(() {
                     selectedCountry = country;
+                    phoneMinLength = country.dialMinLength ?? 10;
+                    phoneMaxLength = country.dialMaxLength ?? 10;
                   });
                 },
               ),
@@ -188,6 +199,24 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   onChanged(String fieldName, String value) {}
+
+  initialize() async {
+    try {
+      List<CountryPhone> allCountries = await apiService.getAllPhoneCountries();
+      if (allCountries.isNotEmpty) {
+        if (!mounted) return;
+        countries = allCountries;
+      }
+    } catch (e) {
+      log('$e');
+    }
+  }
+
+  @override
+  void initState() {
+    initialize();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,16 +291,16 @@ class _RegisterViewState extends State<RegisterView> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           const SizedBox(width: 2),
-                                          Image(
+                                          Image.network(
+                                            selectedCountry!.flag!,
                                             height: 18,
                                             width: 24,
-                                            image: AssetImage(
-                                              selectedCountry!.flag!,
-                                            ),
                                             fit: BoxFit.cover,
+                                            cacheHeight: 24,
+                                            cacheWidth: 24,
                                           ),
                                           Text(
-                                            selectedCountry!.phoneCode!,
+                                            selectedCountry!.dialCode!,
                                             style: textStyleRegularBlack(14),
                                           ),
                                           const Icon(
@@ -319,6 +348,7 @@ class _RegisterViewState extends State<RegisterView> {
                               context,
                               onChanged,
                               TextInputType.number,
+                              maxLength: phoneMaxLength,
                             ),
                           )
                         ],
@@ -332,6 +362,11 @@ class _RegisterViewState extends State<RegisterView> {
                       ValidateText(
                         isVisible: selectedCountry == null && validationFailed,
                         text: "Select a country code",
+                      ),
+                      const SizedBox(height: 4),
+                      ValidateText(
+                        isVisible: phoneLengthError && validationFailed,
+                        text: "Please enter a valid phone number",
                       ),
                       const SizedBox(height: 16),
                       inputField(
@@ -353,8 +388,14 @@ class _RegisterViewState extends State<RegisterView> {
                         text: "Password and confirm password does not match.",
                       ),
                       const SizedBox(height: 16),
-                      inputField("Confirm Password", _confirmPassController,
-                          true, context, onChanged, TextInputType.text),
+                      inputField(
+                        "Confirm Password",
+                        _confirmPassController,
+                        true,
+                        context,
+                        onChanged,
+                        TextInputType.text,
+                      ),
                       ValidateText(
                         isVisible: _confirmPassController.text.isEmpty &&
                             validationFailed,
@@ -366,7 +407,6 @@ class _RegisterViewState extends State<RegisterView> {
                         text: "Password and confirm password does not match.",
                       ),
                       const SizedBox(height: 16),
-                      const SizedBox(height: 24),
                       SubmitButton(
                         onTap: () {
                           validateAndMove();

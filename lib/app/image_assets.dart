@@ -30,4 +30,5 @@ class ImageAssets {
   static const settingIconPrivacy = "assets/icons/ic_privacy.png";
   static const settingIconLogout = "assets/icons/ic_logout.png";
   static const icDeleteAccount = "assets/icons/ic_del_account.png";
+  static const checkBlack = "assets/icons/check_black.png";
 }

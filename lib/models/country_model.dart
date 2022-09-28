@@ -1,13 +1,19 @@
 class Country {
   int? id;
   String? name;
-  String? flag;
+  String? niceName;
+  String? iso;
+  String? iso3;
+  dynamic numCode;
   String? phoneCode;
 
   Country({
     this.id,
     this.name,
-    this.flag,
+    this.niceName,
+    this.iso,
+    this.iso3,
+    this.numCode,
     this.phoneCode,
   });
 
@@ -15,7 +21,10 @@ class Country {
     return Country(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
-      flag: json['flag'] ?? '',
+      niceName: json['niceName'] ?? '',
+      iso: json['iso'],
+      iso3: json['iso3'],
+      numCode: json['numcode'] ?? '',
       phoneCode: json['phone_code'] ?? '',
     );
   }

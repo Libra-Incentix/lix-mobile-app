@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lix/app/color_select.dart';
 
 Widget inputField(
@@ -10,11 +11,17 @@ Widget inputField(
   TextInputType inputType, {
   showPrefix = false,
   Function? onTap,
+  int maxLength = 1000,
+  bool isEnabled = true,
 }) {
   return SizedBox(
     width: MediaQuery.of(context).size.width,
     height: 50,
     child: TextFormField(
+      enabled: isEnabled,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(maxLength),
+      ],
       controller: controller,
       keyboardType: inputType,
       obscureText: obsecureText,
@@ -26,7 +33,10 @@ Widget inputField(
       onChanged: (e) {
         onChanged(name, e);
       },
-      style: const TextStyle(fontSize: 14, color: Colors.black),
+      style: const TextStyle(
+        fontSize: 14,
+        color: Colors.black,
+      ),
       decoration: InputDecoration(
         filled: true,
         prefixIcon: showPrefix ? const Icon(Icons.search, size: 20) : null,

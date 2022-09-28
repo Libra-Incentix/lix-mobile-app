@@ -45,11 +45,14 @@ class _SelectFlagState extends State<SelectFlag> {
           widget.text,
           style: textStyleBoldBlack(16),
         ),
-        leading: Image(
-          image: AssetImage(widget.icon),
+        leading: Image.network(
+          widget.icon,
           fit: BoxFit.fitHeight,
           height: 26,
           width: 26,
+          cacheHeight: 26,
+          cacheWidth: 26,
+          gaplessPlayback: true,
         ),
         minLeadingWidth: 30,
         trailing: widget.isSelected

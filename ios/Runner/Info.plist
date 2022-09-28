@@ -49,5 +49,7 @@
 	<string>We use the camera to scan barcodes</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access in order to open photos of barcodes</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
 </dict>
 </plist>
