@@ -7,6 +7,7 @@ import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/dashboard.dart';
 import 'package:lix/screens/views/register_view.dart';
+import 'package:lix/screens/views/verify_otp_view.dart';
 import 'package:lix/screens/widgets/custom_appbar.dart';
 import 'package:lix/screens/widgets/image_button.dart';
 import 'package:lix/screens/widgets/input_field.dart';
@@ -14,7 +15,11 @@ import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/screens/widgets/validate_text.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -153,7 +158,7 @@ class _LoginViewState extends State<LoginView> {
                         TextButton(
                           onPressed: () async {
                             Uri url = Uri.parse(
-                                'http://app2.libraincentix.com/password/reset');
+                                'http://app.libraincentix.com/password/reset');
 
                             bool canLaunch = await canLaunchUrl(url);
 
@@ -243,15 +248,29 @@ class _LoginViewState extends State<LoginView> {
     try {
       showLoading();
       if (isRegistered) {
-        User user = await apiServices.login(email, password);
-        helperService.saveUserDetails(user);
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Dashboard(),
+        var status = await apiServices.login(email, password);
+
+       if(status == 'success') {
+         //   helperService.saveUserDetails(user);
+         // ignore: use_build_context_synchronously
+         Navigator.push(
+           context,
+           MaterialPageRoute(
+             builder: (context) =>  VerifyOTPView(emailController: email),
+           ),
+         );
+          ScaffoldMessenger.of(context).showSnackBar(
+          locator<SnackBarService>().showSnackBarWithSuccess(
+            'Signin Successful, Proceed to verify OTP',
           ),
         );
+       } else {
+         ScaffoldMessenger.of(context).showSnackBar(
+          locator<SnackBarService>().showSnackBarWithString(
+            status.toString(),
+          ),
+        );
+       }
       } else {
         bool alreadyRegistered = await apiServices.isEmailRegistered(email);
         setState(() {
@@ -264,8 +283,21 @@ class _LoginViewState extends State<LoginView> {
       }
       hideLoading();
     } on CustomException catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        locator<SnackBarService>().showSnackBarWithString(
+          e.message,
+        ),
+      );
+
       hideLoading();
     } catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        locator<SnackBarService>().showSnackBarWithString(
+          e.toString(),
+        ),
+      );
+           print('User: ${e.toString()}');
+
       hideLoading();
     }
   }

@@ -9,6 +9,7 @@ import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/dashboard.dart';
+import 'package:lix/screens/views/login_view.dart';
 import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
@@ -41,7 +42,9 @@ class _RegisterViewState extends State<RegisterView> {
   bool validationFailed = false;
   bool passwordMatchedFailed = false;
   Country? selectedCountry;
-  List<Country> countries = [
+  List<Country> countries = [];
+
+  /*[
     Country(
       id: 0,
       name: 'Saudi Arabia',
@@ -55,6 +58,7 @@ class _RegisterViewState extends State<RegisterView> {
       phoneCode: '+971',
     ),
   ];
+   */
 
   showLoading() {
     setState(() {
@@ -117,7 +121,7 @@ class _RegisterViewState extends State<RegisterView> {
       String fullName =
           '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
       String phoneNo =
-          '${selectedCountry!.phoneCode}${_phoneController.text.trim()}';
+          '${selectedCountry!.dail_code}${_phoneController.text.trim()}';
       String password = _passwordController.text;
 
       User user = await apiServices.register(
@@ -128,14 +132,21 @@ class _RegisterViewState extends State<RegisterView> {
       );
 
       // user is registered auto login to the app...
-      user = await apiServices.login(email, password);
+      //user = await apiServices.login(email, password);
 
-      await locator<HelperService>().saveUserDetails(user);
+      print('User: ${user}');
+
+      //await locator<HelperService>().saveUserDetails(user);
       hideLoading();
       // ignore: use_build_context_synchronously
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Dashboard()),
+        MaterialPageRoute(builder: (context) => const LoginView()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        locator<SnackBarService>().showSnackBarWithSuccess(
+         'Registration successful, Proceed to login',
+        ),
       );
     } on CustomException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,6 +193,18 @@ class _RegisterViewState extends State<RegisterView> {
       },
     );
   }
+
+
+   @override
+  void initState() {
+    countryCode();
+    super.initState();
+  }
+
+  countryCode() async {
+    countries = await  apiServices.getCountryCode();
+  }
+
 
   onChanged(String fieldName, String value) {}
 
@@ -266,16 +289,10 @@ class _RegisterViewState extends State<RegisterView> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           const SizedBox(width: 2),
-                                          Image(
-                                            height: 18,
-                                            width: 24,
-                                            image: AssetImage(
-                                              selectedCountry!.flag!,
+                                           Image.network('https://dummyimage.com/30x20/a1630d/fff.png',
                                             ),
-                                            fit: BoxFit.cover,
-                                          ),
                                           Text(
-                                            selectedCountry!.phoneCode!,
+                                            selectedCountry!.dail_code!,
                                             style: textStyleRegularBlack(14),
                                           ),
                                           const Icon(

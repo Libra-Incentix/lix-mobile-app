@@ -34,7 +34,8 @@ class _MyProfileViewState extends State<MyProfileView> {
       TextEditingController();
 
   Country? selectedCountry;
-  List<Country> countries = [
+  List<Country> countries = [];
+   /*
     Country(
       id: 0,
       name: 'Saudi Arabia',
@@ -48,7 +49,7 @@ class _MyProfileViewState extends State<MyProfileView> {
       phoneCode: '+971',
     ),
   ];
-
+   */
   showLoading() {
     setState(() {
       if (!mounted) return;

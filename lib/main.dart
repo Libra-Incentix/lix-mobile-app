@@ -27,11 +27,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lix',
+      debugShowCheckedModeBanner: false,
+      title: 'Libra Incentix',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: MyHomePage(title: 'Lix', user: user),
+      home: MyHomePage(title: 'Libra Incentix', user: user),
     );
   }
 }
@@ -54,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+     debugShowCheckedModeBanner: false,
       home: widget.user != null ? const Dashboard() : const IntroSlider(),
       theme: ThemeData(fontFamily: 'Inter'),
     );
