@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
@@ -12,6 +13,7 @@ import 'package:lix/screens/views/scan_qr_view.dart';
 import 'package:lix/screens/widgets/earn_with_lix.dart';
 import 'package:lix/screens/widgets/exclusive_deals.dart';
 import 'package:lix/screens/widgets/recommended_deals.dart';
+import 'package:lix/screens/widgets/task_proof_dialog.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
@@ -193,12 +195,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 16),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ScanQrView(),
-                                ),
-                              );
+                              if (!kDebugMode) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ScanQrView(),
+                                  ),
+                                );
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const TaskProofDialog();
+                                  },
+                                );
+                              }
                             },
                             child: Container(
                               alignment: Alignment.center,
@@ -248,14 +259,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 EarnWithLix(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EarnDetailsScreen(
-                          data: null,
-                        ),
-                      ),
-                    );
+                    // TODO change this later
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => const EarnDetailsScreen(
+                    //       data: null,
+                    //     ),
+                    //   ),
+                    // );
                   },
                   productsList: earningList,
                 )

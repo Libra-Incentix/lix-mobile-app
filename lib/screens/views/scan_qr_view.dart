@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:barcode_scan2/barcode_scan2.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
+import 'package:lix/models/offer_model.dart';
+import 'package:lix/models/task_link.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/earn_details_screen.dart';
@@ -49,7 +53,7 @@ class _ScanQrViewState extends State<ScanQrView> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          "My Coupons",
+          "",
           style: textStyleBoldBlack(16),
         ),
         leading: Builder(
@@ -92,22 +96,62 @@ class _ScanQrViewState extends State<ScanQrView> {
 
       if (scanResult!.rawContent.contains('http')) {
         // getting offer data...
-        dynamic result =
-            await apiService.verifyQRCodeLink(scanResult!.rawContent, user);
+        dynamic result = await apiService.verifyQRCodeLink(
+          scanResult!.rawContent,
+          user,
+        );
         if (result['success'] != null && result['success']) {
-          // ignore: use_build_context_synchronously
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EarnDetailsScreen(
-                data: result['data'],
+          if (result['data'] != null &&
+              result['data']['link_type'] != null &&
+              result['data']['link_type'] == 'task') {
+            TaskLinkModel tlModel = TaskLinkModel.fromJson(
+              result['data']['link'],
+            );
+
+            tlModel.fullLink = scanResult!.rawContent;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EarnDetailsScreen(
+                  taskLink: tlModel,
+                  offerModel: null,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            // this is for link type offer
+            if (result['data'] != null &&
+                result['data']['link_type'] != null &&
+                result['data']['link_type'] == 'offer') {
+              OfferModel offerModel = OfferModel.fromJson(
+                result['data']['offer'],
+              );
+              offerModel.fullLink = scanResult!.rawContent;
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EarnDetailsScreen(
+                    offerModel: offerModel,
+                    taskLink: null,
+                  ),
+                ),
+              );
+            }
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-              snackBarService.showSnackBarWithString(result['message'] ?? ''));
+            snackBarService.showSnackBarWithString(result['message'] ?? ''),
+          );
+          Navigator.pop(context);
         }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          snackBarService.showSnackBarWithString(
+            'Invalid code, please try again.',
+            type: SnackBarType.error,
+          ),
+        );
+        Navigator.pop(context);
       }
     } on PlatformException catch (e) {
       setState(() {
@@ -119,6 +163,7 @@ class _ScanQrViewState extends State<ScanQrView> {
               : 'Unknown error: $e',
         );
       });
+      Navigator.pop(context);
     }
   }
 }

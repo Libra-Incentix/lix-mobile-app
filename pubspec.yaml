@@ -44,6 +44,11 @@ dependencies:
   url_launcher: ^6.1.5
   barcode_scan2: ^4.2.1
   scan: ^1.6.0
+  flutter_widget_from_html: ^0.8.5
+  share_plus: ^4.4.0
+  qr_flutter: ^4.0.0
+  path_provider: ^2.0.11
+  intl: ^0.17.0
   # sign_in_with_apple: ^4.1.0
 dev_dependencies:
   flutter_test:

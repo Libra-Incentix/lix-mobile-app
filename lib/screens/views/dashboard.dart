@@ -18,7 +18,7 @@ class _DashboardState extends State<Dashboard> {
     HomeScreen(),
     DealsScreen(),
     EarnScreen(),
-    MoreScreen()
+    MoreScreen(),
   ];
 
   void _onItemTapped(int index) {

@@ -1,84 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lix/app/color_select.dart';
+import 'package:lix/models/transaction_model.dart';
 import 'package:lix/models/transc_model.dart';
 import 'package:lix/screens/transaction_details.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 
 class MySpentView extends StatefulWidget {
-  const MySpentView({Key? key}) : super(key: key);
+  final List<TransactionModel> allTransactions;
+  const MySpentView({
+    Key? key,
+    required this.allTransactions,
+  }) : super(key: key);
 
   @override
   State<MySpentView> createState() => _MySpentViewState();
 }
 
 class _MySpentViewState extends State<MySpentView> {
-  final List<TranscModel> earninigs = [
-    TranscModel(
-        title: "Get 10% discount on new collection items",
-        date: "Jul, 23 2022",
-        imgPath: "assets/icons/ic_brand_1.png",
-        points: "20 LIX"),
-    TranscModel(
-        title: "20% discount on selected items",
-        date: "Jul, 23 2022",
-        imgPath: "assets/icons/ic_brand_1.png",
-        points: "20 LIX"),
-    TranscModel(
-        title: "50% discount on second night",
-        date: "Jul, 23 2022 2022",
-        imgPath: "assets/icons/ic_brand_3.png",
-        points: "20 LIX"),
-    TranscModel(
-        title: "Buy one get one free",
-        date: "Jul, 24 2022",
-        imgPath: "assets/icons/ic_notlist_4.png",
-        points: "20 LIX"),
-  ];
+  late List<TransactionModel> allTransactions = widget.allTransactions;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: ListView.builder(
-            itemCount: earninigs.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TransactionDetails()),
-                  );
-                },
-                tileColor: Colors.white,
-                title: Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 0, bottom: 4),
-                  child: Text(
-                    earninigs[index].title,
-                    style: textStyleBoldBlack(15),
+      child: ListView.builder(
+        itemCount: allTransactions.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TransactionDetails(
+                    transaction: allTransactions[index],
                   ),
                 ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text(earninigs[index].date,
-                      style: customFontRegular(13, ColorSelect.greyDark)),
-                ),
-                leading: Container(
-                  height: 36,
-                  width: 36,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage(earninigs[index].imgPath)),
-                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                    border: Border.all(
-                      color: ColorSelect.appThemeGrey,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                trailing: Text("-${earninigs[index].points}",
-                    style: textStyleViewAll(14)),
               );
-            }));
+            },
+            tileColor: Colors.white,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 10, left: 0, bottom: 4),
+              child: Text(
+                allTransactions[index].description ?? '',
+                style: textStyleBoldBlack(15),
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                getTransactionDate(index),
+                style: customFontRegular(
+                  13,
+                  ColorSelect.greyDark,
+                ),
+              ),
+            ),
+            leading: Container(
+              height: 36,
+              width: 36,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage(
+                    "assets/icons/ic_notlist_4.png",
+                  ),
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(8.0),
+                ),
+                border: Border.all(
+                  color: ColorSelect.appThemeGrey,
+                  width: 2,
+                ),
+              ),
+            ),
+            trailing: Text(
+              parseCurrency(index),
+              style: textStyleViewAll(14),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String getTransactionDate(int index) {
+    if (allTransactions[index].createdAt != null) {
+      return DateFormat('d, MMM yyyy').format(
+        DateTime.parse(allTransactions[index].createdAt!),
+      );
+    }
+    return DateFormat('d, MMM yyyy').format(
+      DateTime.now(),
+    );
+  }
+
+  String parseCurrency(int index) {
+    if (allTransactions[index].amount != null &&
+        allTransactions[index].currency != null) {
+      return '-${allTransactions[index].amount} ${allTransactions[index].currency}';
+    }
+    return '0 LIX';
   }
 }

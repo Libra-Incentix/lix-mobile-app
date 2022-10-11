@@ -45,12 +45,13 @@ class _EarnScreenState extends State<EarnScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EarnDetailsScreen(data: null),
-                ),
-              );
+              // TODO change this later...
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const EarnDetailsScreen(data: null),
+              //   ),
+              // );
             },
             title: Padding(
               padding: const EdgeInsets.only(bottom: 3.0),

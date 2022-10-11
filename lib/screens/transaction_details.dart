@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lix/app/color_select.dart';
+import 'package:lix/models/transaction_model.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
-import 'package:lix/screens/widgets/claim_coupondialog.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 
 class TransactionDetails extends StatefulWidget {
-  const TransactionDetails({Key? key}) : super(key: key);
+  final TransactionModel transaction;
+  const TransactionDetails({
+    Key? key,
+    required this.transaction,
+  }) : super(key: key);
 
   @override
   State<TransactionDetails> createState() => _TransactionDetailsState();
 }
 
 class _TransactionDetailsState extends State<TransactionDetails> {
+  late TransactionModel transaction = widget.transaction;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,10 +66,11 @@ class _TransactionDetailsState extends State<TransactionDetails> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4.0),
                       child: const Image(
-                          height: 50,
-                          width: 50,
-                          image: AssetImage("assets/icons/ic_brand_1.png"),
-                          fit: BoxFit.cover),
+                        height: 50,
+                        width: 50,
+                        image: AssetImage("assets/icons/ic_brand_1.png"),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ],
@@ -70,17 +78,21 @@ class _TransactionDetailsState extends State<TransactionDetails> {
             ),
             Container(
               padding: const EdgeInsets.all(16),
+              width: MediaQuery.of(context).size.width,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Text(
+                  //   "Watchbox",
+                  //   style: textStyleMediumBlack(20),
+                  // ),
+                  // const SizedBox(height: 8),
                   Text(
-                    "Watchbox",
-                    style: textStyleMediumBlack(20),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Get 10% discount on new collection items",
-                    style: customFontRegular(14, ColorSelect.lightBlack),
+                    transaction.description ?? '',
+                    style: customFontRegular(
+                      14,
+                      ColorSelect.lightBlack,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -91,30 +103,44 @@ class _TransactionDetailsState extends State<TransactionDetails> {
                         style: textStyleBoldBlack(14),
                       ),
                       Text(
-                        "Jul, 24 2022",
+                        getTransactionDate(),
                         style: textStyleRegularBlack(14),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Transaction ID",
-                        style: textStyleBoldBlack(14),
-                      ),
-                      Text(
-                        "ABCDEFG",
-                        style: textStyleRegularBlack(14),
-                      ),
-                    ],
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            "Transaction ID",
+                            style: textStyleBoldBlack(14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            getTransactionId(),
+                            textAlign: TextAlign.right,
+                            style: textStyleRegularBlack(14),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Container(
-                      height: 2,
-                      width: MediaQuery.of(context).size.width,
-                      color: ColorSelect.appThemeGrey),
+                    height: 2,
+                    width: MediaQuery.of(context).size.width,
+                    color: ColorSelect.appThemeGrey,
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,7 +150,7 @@ class _TransactionDetailsState extends State<TransactionDetails> {
                         style: textStyleBoldBlack(14),
                       ),
                       Text(
-                        "-20 LIX",
+                        parseCurrency(),
                         style: textStyleViewAll(14),
                       ),
                     ],
@@ -135,22 +161,36 @@ class _TransactionDetailsState extends State<TransactionDetails> {
           ],
         ),
       ),
-      bottomSheet: Container(
-        margin: const EdgeInsets.only(left: 16, right: 16),
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-        child: SubmitButton(
-          onTap: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return const ClaimCouponDialog();
-                });
-          },
-          text: "Claim Reward",
-          disabled: false,
-          color: Colors.black,
-        ),
-      ),
     );
+  }
+
+  String getTransactionId() {
+    if (transaction.tnxId != null) {
+      return transaction.tnxId!;
+    }
+    return '';
+  }
+
+  String getTransactionDate() {
+    if (transaction.createdAt != null) {
+      return DateFormat('d, MMM yyyy').format(
+        DateTime.parse(transaction.createdAt!),
+      );
+    }
+    return DateFormat('d, MMM yyyy').format(
+      DateTime.now(),
+    );
+  }
+
+  String parseCurrency() {
+    String value = '0 LIX';
+    if (transaction.amount != null && transaction.currency != null) {
+      value = '${transaction.amount} ${transaction.currency}';
+    }
+
+    if (transaction.type != null && transaction.type != 'earning') {
+      value = '-$value';
+    }
+    return value;
   }
 }

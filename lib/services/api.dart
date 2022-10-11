@@ -6,6 +6,7 @@ import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/models/notification_model.dart';
+import 'package:lix/models/transaction_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
@@ -385,6 +386,87 @@ class APIService {
     }
   }
 
+  Future<Map<String, dynamic>> submitTask(
+    User user,
+    String taskId,
+    String linkId,
+  ) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}tasks/activity/${taskId}/submit"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+        "accept": "application/json",
+      },
+      body: {
+        "link_id": linkId,
+        "email": user.email,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] && body['data'] != null) {
+        return body;
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'TaskSubmitFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<Map<String, dynamic>> buyOffer(
+    User user,
+    String offerId,
+  ) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}markets/buy_offer"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+      body: {
+        "offer": offerId,
+        "user_id": user.phone,
+        "redeemer_email": user.email,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] && body['data'] != null) {
+        return body;
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'BuyOfferFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
   Future<List<WalletDetails>> getUserBalance(User user) async {
     var response = await http.get(
       Uri.parse("${apiURL}user/profile/balance"),
@@ -479,6 +561,136 @@ class APIService {
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'NotificationsRetrievalFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<String> getWalletFundsLink(User user, int walletId) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}wallets/funds/$walletId"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return body['data'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'WalletFundsRetrieveFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<String> getWalletFundsTransferLink(User user, int walletId) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}wallets/funds/$walletId/transfer"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return body['data'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'WalletFundsRetrieveFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<String> getWalletFundsWithdrawLink(User user, int walletId) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}wallets/funds/$walletId/withdraw"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return body['data'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'WalletFundsRetrieveFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<List<TransactionModel>> getAllTransactions(User user) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}transactions/${user.id}"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return (body['data']['data'] as List)
+            .map((e) => TransactionModel.fromJson(e))
+            .toList();
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['success'] ?? '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'TransactionListRetrievalFailed',
           message: body['message'],
         );
       }
