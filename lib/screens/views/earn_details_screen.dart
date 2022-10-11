@@ -17,6 +17,7 @@ import 'package:lix/screens/widgets/ExpandableItem.dart';
 import 'package:lix/screens/widgets/claim_coupondialog.dart';
 import 'package:lix/screens/widgets/claim_task_dialog.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
+import 'package:lix/screens/widgets/task_proof_dialog.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
@@ -258,10 +259,23 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
 
   claim() {
     if (isTask) {
-      submitTask();
+      showProofDialog();
     } else {
       claimOffer();
     }
+  }
+
+  onSubmitProof(imagePath, codeReceived) {
+    submitTask(imagePath, codeReceived);
+  }
+
+  showProofDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TaskProofDialog(onSubmit: onSubmitProof);
+      },
+    );
   }
 
   Future claimOffer() async {
@@ -319,14 +333,15 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     }
   }
 
-  Future submitTask() async {
+  Future submitTask(imagePath, codeReceived) async {
     try {
       showLoading();
       Map<String, dynamic> response = await apiService.submitTask(
-        user,
-        task!.id.toString(),
-        taskLinkModel!.id!.toString(),
-      );
+          user,
+          task!.id.toString(),
+          taskLinkModel!.id!.toString(),
+          imagePath,
+          codeReceived);
 
       if (response['success'] != null && response['success']) {
         showDialog(

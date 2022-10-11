@@ -195,21 +195,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 16),
                           GestureDetector(
                             onTap: () {
-                              if (!kDebugMode) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ScanQrView(),
-                                  ),
-                                );
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const TaskProofDialog();
-                                  },
-                                );
-                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ScanQrView(),
+                                ),
+                              );
                             },
                             child: Container(
                               alignment: Alignment.center,

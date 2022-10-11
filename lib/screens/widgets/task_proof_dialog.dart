@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 
 class TaskProofDialog extends StatefulWidget {
-  const TaskProofDialog({Key? key}) : super(key: key);
+  Function onSubmit;
+  TaskProofDialog({Key? key, required this.onSubmit}) : super(key: key);
 
   @override
   State<TaskProofDialog> createState() => _TaskProofDialogState();
@@ -17,6 +22,21 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
   void dispose() {
     textProofController.dispose();
     super.dispose();
+  }
+
+  String imagePath = "";
+  String imageName = "";
+  String codeReceived = "";
+  File? image;
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final imageTemp = File(image.path);
+      setState(() => {imagePath = image.path, imageName = image.name});
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
   }
 
   @override
@@ -61,7 +81,12 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
                   bottom: 16,
                 ),
                 child: SubmitButton(
-                  onTap: () {},
+                  onTap: () {
+                    if (imagePath != "" && codeReceived != "") {
+                      Navigator.of(context).pop();
+                      widget.onSubmit(imagePath, codeReceived);
+                    }
+                  },
                   text: 'Submit',
                   color: ColorSelect.lightBlack,
                 ),
@@ -99,6 +124,9 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
               horizontal: 15,
             ),
             child: TextFormField(
+              onChanged: (value) => {
+                setState(() => {codeReceived = value})
+              },
               controller: textProofController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -144,6 +172,7 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
           ),
           const SizedBox(height: 5),
           GestureDetector(
+            onTap: (() => {pickImage()}),
             child: Container(
               height: 60,
               width: width,
@@ -162,7 +191,7 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
                 ),
               ),
               child: Text(
-                'Select image...',
+                imageName != "" ? imageName : 'Select image...',
                 style: textStyleBoldBlack(16).copyWith(
                   fontWeight: FontWeight.w500,
                   color: ColorSelect.lightBlack.withOpacity(.4),

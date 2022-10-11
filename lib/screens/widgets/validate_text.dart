@@ -1,7 +1,6 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:lix/app/color_select.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 
 class ValidateText extends StatefulWidget {
