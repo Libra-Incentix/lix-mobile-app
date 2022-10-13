@@ -436,7 +436,16 @@ class _MyProfileViewState extends State<MyProfileView> {
                       ),
                       children: <Widget>[
                         inputField(
-                          "Password",
+                          "Current Password",
+                          _passwordController,
+                          true,
+                          context,
+                          () {},
+                          TextInputType.text,
+                        ),
+                        const SizedBox(height: 16),
+                        inputField(
+                          "New Password",
                           _passwordController,
                           true,
                           context,

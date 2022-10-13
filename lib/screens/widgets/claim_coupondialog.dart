@@ -4,6 +4,7 @@ import 'package:lix/app/image_assets.dart';
 import 'package:lix/models/buy_offer_success.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
+import 'package:flutter/services.dart';
 
 class ClaimCouponDialog extends StatefulWidget {
   final BuyOfferSuccess buyOfferSuccess;
@@ -89,31 +90,47 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 4),
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 3, 3, 3),
-                            fontSize: 14,
-                            fontFamily: 'Intern',
-                            height: 1.7,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          children: <TextSpan>[
-                            const TextSpan(
-                              text: '',
-                            ),
-                            TextSpan(
-                              text: '${buyOfferSuccess.coupon}',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: ColorSelect.appThemeOrange,
+                                color: Color.fromARGB(255, 3, 3, 3),
+                                fontSize: 14,
+                                fontFamily: 'Intern',
+                                height: 1.7,
+                                fontWeight: FontWeight.w400,
                               ),
+                              children: <TextSpan>[
+                                const TextSpan(
+                                  text: '',
+                                ),
+                                TextSpan(
+                                  text: '${buyOfferSuccess.coupon}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorSelect.appThemeOrange,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              await Clipboard.setData(
+                                  ClipboardData(text: buyOfferSuccess.coupon));
+                            },
+                            icon: const Icon(
+                              Icons.copy,
+                              size: 20,
+                              color: Colors.black,
+                            ),
+                          )
+                        ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 6),
                       SubmitButton(
                         onTap: widget.shareAction,
                         text: "Share Now",

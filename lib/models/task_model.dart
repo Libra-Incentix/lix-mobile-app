@@ -51,40 +51,46 @@ class TaskModel {
     ProjectModel? pModel;
     LinkModel? lModel;
     User? user;
+    try {
+      if (json['project'] != null) {
+        pModel = ProjectModel.fromJson(json['project']);
+      }
 
-    if (json['project'] != null) {
-      pModel = ProjectModel.fromJson(json['project']);
-    }
+      if (json['link'] != null) {
+        lModel = LinkModel.fromJson(json['link']);
+      }
 
-    if (json['link'] != null) {
-      lModel = LinkModel.fromJson(json['link']);
+      if (json['user'] != null) {
+        user = User.fromJson(json['user']);
+      }
+      return TaskModel(
+        id: json['id'],
+        title: json['title'],
+        description: json['description'],
+        teamId: json['team_id'],
+        project: pModel,
+        link: lModel,
+        user: user,
+        totalCoinsAvailable: json['total_coins_available'],
+        coinsPerAction: json['coins_per_action'],
+        approvalType: json['approval_type'],
+        numberOfSubmissionsAllowedPerPeriod:
+            json['number_of_submissions_allowed_per_period'],
+        period: json['period'],
+        privacyType: json['privacy_type'],
+        proofType: json['proof_type'],
+        numberOfSubmissionsAllowed: json['number_of_submissions_allowed'],
+        privacy: json['privacy'],
+        status: json['status'],
+        avatar: json['avatar'],
+        createdAt: json['created_at'],
+        updatedAt: json['updated_at'],
+      );
+    } on Exception catch (exception) {
+      print(exception.toString());
+    } catch (error) {
+      print(error);
     }
-
-    if (json['user'] != null) {
-      user = User.fromJson(json['user']);
-    }
-    return TaskModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      teamId: json['team_id'],
-      project: pModel,
-      link: lModel,
-      user: user,
-      totalCoinsAvailable: json['total_coins_available'],
-      coinsPerAction: json['coins_per_action'],
-      approvalType: json['approval_type'],
-      numberOfSubmissionsAllowedPerPeriod:
-          json['number_of_submissions_allowed_per_period'],
-      period: json['period'],
-      privacyType: json['privacy_type'],
-      proofType: json['proof_type'],
-      numberOfSubmissionsAllowed: json['number_of_submissions_allowed'],
-      privacy: json['privacy'],
-      status: json['status'],
-      avatar: json['avatar'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
-    );
+    return TaskModel();
   }
 }

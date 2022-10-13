@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:lix/locator.dart';
+import 'package:lix/models/custom_exception.dart';
+import 'package:lix/models/task_model.dart';
+import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/earn_details_screen.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({Key? key}) : super(key: key);
@@ -10,23 +17,61 @@ class EarnScreen extends StatefulWidget {
 }
 
 class _EarnScreenState extends State<EarnScreen> {
-  final titles = [
-    "Share offer and earn 20 LIX",
-    "Complete your profile and get 30 LIX",
-    "Download & register with Bloomingdales app and get 50 LIX",
-    "Upload you profile image and get 5 LIX",
-    "Redeem a coupon and get 5 LIX",
-    "Rate us 5 stars at app store and earn free 2 coupons plus 5 LIX"
-  ];
-  final subtitles = ["20 LIX", "30 LIX", "50 LIX", "5 LIX", "5LIX", "5LIX"];
-  final icons = [
-    "assets/icons/earn_1.png",
-    "assets/icons/earn_2.png",
-    "assets/icons/earn_3.png",
-    "assets/icons/earn_4.png",
-    "assets/icons/earn_5.png",
-    "assets/icons/earn_1.png"
-  ];
+  late User user = locator<HelperService>().getCurrentUser()!;
+  HelperService helperService = locator<HelperService>();
+  APIService apiService = locator<APIService>();
+  SnackBarService snackBarService = locator<SnackBarService>();
+  List<TaskModel> allTasks = [];
+  bool loading = false;
+
+  showLoading() {
+    if (!mounted) return;
+    setState(() {
+      loading = true;
+    });
+  }
+
+  hideLoading() {
+    if (!mounted) return;
+    setState(() {
+      loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    initialize();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  initialize() async {
+    try {
+      showLoading();
+      List<TaskModel> tasks = await apiService.getGlobalTasks(user);
+      if (tasks.isNotEmpty && mounted) {
+        setState(() {
+          allTasks = tasks;
+        });
+      }
+      hideLoading();
+    } on CustomException catch (e) {
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(e.message),
+      );
+    } catch (e) {
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(e.toString()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +86,7 @@ class _EarnScreenState extends State<EarnScreen> {
         ),
       ),
       body: ListView.builder(
-        itemCount: titles.length,
+        itemCount: allTasks.length,
         itemBuilder: (context, index) {
           return ListTile(
             onTap: () {
@@ -56,7 +101,7 @@ class _EarnScreenState extends State<EarnScreen> {
             title: Padding(
               padding: const EdgeInsets.only(bottom: 3.0),
               child: Text(
-                titles[index],
+                allTasks[index].title ?? '',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
@@ -66,7 +111,7 @@ class _EarnScreenState extends State<EarnScreen> {
               ),
             ),
             subtitle: Text(
-              subtitles[index],
+              "${(allTasks[index].coinsPerAction)} LIX",
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -74,12 +119,18 @@ class _EarnScreenState extends State<EarnScreen> {
                 fontFamily: 'Inter',
               ),
             ),
-            leading: Image(
-              image: AssetImage(icons[index]),
-              fit: BoxFit.fitHeight,
-              height: 50,
-              width: 50,
-            ),
+            leading: allTasks[index].avatar != null
+                ? Image.network(
+                    apiService.imagesPath + (allTasks[index].avatar ?? ''),
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.fitHeight)
+                : const Image(
+                    image: AssetImage("assets/icons/earn_2.png"),
+                    fit: BoxFit.fitHeight,
+                    height: 50,
+                    width: 50,
+                  ),
           );
         },
       ),

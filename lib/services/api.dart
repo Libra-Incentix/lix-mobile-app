@@ -6,12 +6,14 @@ import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/models/notification_model.dart';
+import 'package:lix/models/task_model.dart';
 import 'package:lix/models/transaction_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
 class APIService {
   final String _baseURL = 'http://app.libraincentix.com/api/v1/';
+  final String imagesPath = "http://app.libraincentix.com/images/";
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
     "Content-Type": "application/json",
@@ -697,6 +699,42 @@ class APIService {
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'TransactionListRetrievalFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<List<TaskModel>> getGlobalTasks(User user) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}tasks/global-tasks"),
+      headers: {
+        ...headers,
+        "accept": "application/json",
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      print(body.toString());
+      if (body['success'] != null && body['data'] != null) {
+        return (body['data']['data'] as List)
+            .map((e) => TaskModel.fromJson(e))
+            .toList();
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['success'] ?? '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      print(body.toString());
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'TaskListRetrievalFailed',
           message: body['message'],
         );
       }

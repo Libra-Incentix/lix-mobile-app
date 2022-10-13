@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/locator.dart';
+import 'package:intl/intl.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
@@ -102,7 +103,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "${lixWallet?.balance ?? '0'} LIX",
+                            "${NumberFormat("###,###", "en_US").format(int.parse(lixWallet?.balance ?? '0'))} LIX",
                             style: textStyleMedium(24),
                           ),
                           const SizedBox(height: 14),
