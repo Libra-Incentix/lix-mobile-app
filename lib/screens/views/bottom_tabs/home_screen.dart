@@ -1,14 +1,15 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/task_link.dart';
 import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/views/dashboard.dart';
+import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/screens/views/notifications_view.dart';
 import 'package:lix/screens/views/scan_qr_view.dart';
 import 'package:lix/screens/widgets/earn_with_lix.dart';
@@ -255,16 +256,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   viewAllOption: true,
                 ),
                 EarnWithLix(
-                  onTap: () {
-                    // TODO change this later
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const EarnDetailsScreen(
-                    //       data: null,
-                    //     ),
-                    //   ),
-                    // );
+                  viewAllAction: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const Dashboard(
+                            index: 2,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  onTap: (task) {
+                    // first creating task link model...
+                    TaskLinkModel taskLinkModel = TaskLinkModel(
+                      task: task,
+                    );
+
+                    // TODO change this later...
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EarnDetailsScreen(
+                          taskLink: taskLinkModel,
+                          offerModel: null,
+                        ),
+                      ),
+                    );
                   },
                   allTasks: allTasks,
                 )

@@ -125,11 +125,18 @@ class _NotificationsViewState extends State<NotificationsView> {
               itemCount: _notifications.length,
               itemBuilder: (context, index) {
                 return ListTile(
+                  leading: const Icon(
+                    Icons.notifications,
+                  ),
                   tileColor: _notifications[index].read!
                       ? Colors.white
                       : ColorSelect.appThemeGrey,
                   title: Padding(
-                    padding: const EdgeInsets.only(top: 10, left: 0, bottom: 4),
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      left: 0,
+                      bottom: 4,
+                    ),
                     child: Text(
                       _notifications[index].title ?? '',
                       style: textStyleBoldBlack(15),

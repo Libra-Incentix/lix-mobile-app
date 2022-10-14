@@ -71,7 +71,9 @@ class _VerifyOTPViewState extends State<VerifyOTPView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const Dashboard(),
+          builder: (context) => const Dashboard(
+            index: 0,
+          ),
         ),
       );
     } on CustomException catch (e) {

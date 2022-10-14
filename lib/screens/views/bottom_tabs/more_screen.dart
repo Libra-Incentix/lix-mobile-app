@@ -290,7 +290,9 @@ class _MoreScreenState extends State<MoreScreen> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) {
-          return const Dashboard();
+          return const Dashboard(
+            index: 0,
+          );
         },
       ),
     );

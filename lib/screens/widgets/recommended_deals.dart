@@ -31,6 +31,16 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
   }
 
   @override
+  void didUpdateWidget(covariant RecommendedDeals oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.productsList != oldWidget.productsList) {
+      setState(() {
+        allOffers = widget.productsList;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,

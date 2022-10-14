@@ -92,8 +92,9 @@ class _EarnScreenState extends State<EarnScreen> {
           return ListTile(
             onTap: () {
               // first creating task link model...
-              TaskLinkModel taskLinkModel =
-                  TaskLinkModel(task: allTasks[index]);
+              TaskLinkModel taskLinkModel = TaskLinkModel(
+                task: allTasks[index],
+              );
 
               // TODO change this later...
               Navigator.push(
@@ -127,21 +128,20 @@ class _EarnScreenState extends State<EarnScreen> {
                 fontFamily: 'Inter',
               ),
             ),
-            leading: allTasks[index].avatar != null
-                ? Image.network(
-                    apiService.imagesPath + (allTasks[index].avatar ?? ''),
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.fitHeight)
-                : const Image(
-                    image: AssetImage("assets/icons/earn_2.png"),
-                    fit: BoxFit.fitHeight,
-                    height: 50,
-                    width: 50,
-                  ),
+            leading: provideImage(allTasks[index]),
           );
         },
       ),
     );
+  }
+
+  Widget provideImage(TaskModel task) {
+    if (task.avatar == null ||
+        task.avatar!.isEmpty ||
+        !task.avatar!.contains('http')) {
+      return Image.asset('assets/images/no-img.png');
+    }
+
+    return Image.network(task.avatar!);
   }
 }

@@ -2,16 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
+import 'package:lix/app/image_assets.dart';
 import 'package:lix/models/task_model.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 
 class EarnWithLix extends StatefulWidget {
   final List<TaskModel> allTasks;
   Function onTap;
+  Function viewAllAction;
   EarnWithLix({
     Key? key,
     required this.onTap,
     required this.allTasks,
+    required this.viewAllAction,
   }) : super(key: key);
 
   @override
@@ -45,9 +48,15 @@ class _EarnWithLixState extends State<EarnWithLix> {
                 'Earn with LIX',
                 style: textStyleBoldBlack(16),
               ),
-              Text(
-                'View All',
-                style: textStyleViewAll(12),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  widget.viewAllAction();
+                },
+                child: Text(
+                  'View All',
+                  style: textStyleViewAll(12),
+                ),
               ),
             ],
           ),
@@ -61,6 +70,7 @@ class _EarnWithLixState extends State<EarnWithLix> {
               itemBuilder: (context, index) {
                 return ListTile(
                   contentPadding: const EdgeInsets.all(0),
+                  onTap: () => widget.onTap(allTasks[index]),
                   title: Padding(
                     padding: const EdgeInsets.only(bottom: 3.0),
                     child: Text(
@@ -82,11 +92,8 @@ class _EarnWithLixState extends State<EarnWithLix> {
                       fontFamily: 'Inter',
                     ),
                   ),
-                  leading: const Image(
-                    image: AssetImage(
-                      // widget.productsList[index]["picture"],
-                      "assets/icons/earn_1.png",
-                    ),
+                  leading: Image(
+                    image: provideImage(allTasks[index]),
                     fit: BoxFit.fitHeight,
                     height: 50,
                     width: 50,
@@ -98,5 +105,15 @@ class _EarnWithLixState extends State<EarnWithLix> {
         ],
       ),
     );
+  }
+
+  ImageProvider provideImage(TaskModel task) {
+    if (task.avatar == null ||
+        task.avatar!.isEmpty ||
+        !task.avatar!.contains('http')) {
+      return const AssetImage('assets/images/no-img.png');
+    }
+
+    return NetworkImage(task.avatar!);
   }
 }

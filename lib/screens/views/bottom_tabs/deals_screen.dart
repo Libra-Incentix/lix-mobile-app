@@ -78,6 +78,7 @@ class _DealsScreenState extends State<DealsScreen> {
   SnackBarService snackBarService = locator<SnackBarService>();
   List<MarketOffer> allOffers = [];
   List<Category> allCategories = [];
+  String sortingOrder = 'asc';
 
   showLoading() {
     setState(() {
@@ -192,22 +193,28 @@ class _DealsScreenState extends State<DealsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('All Deals', style: textStyleMediumBlack(24)),
-                        Row(
-                          children: [
-                            const Image(
-                              image: AssetImage(
-                                ImageAssets.sortArrowIcon,
+                        Text(
+                          'All Deals',
+                          style: textStyleMediumBlack(24),
+                        ),
+                        GestureDetector(
+                          onTap: sortDeals,
+                          child: Row(
+                            children: [
+                              const Image(
+                                image: AssetImage(
+                                  ImageAssets.sortArrowIcon,
+                                ),
+                                height: 16,
+                                width: 16,
                               ),
-                              height: 16,
-                              width: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Sort',
-                              style: textStyleViewAll(12),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              Text(
+                                'Sort',
+                                style: textStyleViewAll(12),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -229,5 +236,33 @@ class _DealsScreenState extends State<DealsScreen> {
               ),
             ),
     );
+  }
+
+  String provideOrganizationName(MarketOffer offer) {
+    if (offer.organisation != null) {
+      return offer.organisation!.name ?? '';
+    }
+    return '';
+  }
+
+  sortDeals() {
+    setState(() {
+      allOffers.sort((a, b) {
+        return provideOrganizationName(a).compareTo(
+          provideOrganizationName(b),
+        );
+      });
+    });
+
+    if (sortingOrder == 'asc') {
+      setState(() {
+        sortingOrder = 'desc';
+      });
+    } else {
+      setState(() {
+        sortingOrder = 'asc';
+        allOffers = allOffers.reversed.toList();
+      });
+    }
   }
 }

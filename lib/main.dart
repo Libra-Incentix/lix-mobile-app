@@ -56,7 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: widget.user != null ? const Dashboard() : const IntroSlider(),
+      home: widget.user != null
+          ? const Dashboard(
+              index: 0,
+            )
+          : const IntroSlider(),
       theme: ThemeData(fontFamily: 'Inter'),
     );
   }
