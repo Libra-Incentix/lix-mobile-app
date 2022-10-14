@@ -42,7 +42,7 @@ class User {
       password: json['password'] ?? '',
       phone: json['phone'] ?? '',
       gender: json['gender'] ?? 'male',
-      dateOfBirth: json['dateOfBirth'] ?? '',
+      dateOfBirth: json['date_of_birth'] ?? '',
       cityId: json['cityId'] ?? 0,
       stateId: json['stateId'] ?? 0,
       countryId: json['countryId'] ?? 0,

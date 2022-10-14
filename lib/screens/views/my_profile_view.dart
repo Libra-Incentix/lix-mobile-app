@@ -10,6 +10,7 @@ import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
+import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/screens/widgets/validate_text.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
@@ -31,6 +32,8 @@ class _MyProfileViewState extends State<MyProfileView> {
   bool validationFailed = false;
   bool phoneLengthError = false;
   bool passwordMatchedFailed = false;
+  bool passwordValidationFailed = false;
+  bool changePasswordOpened = false;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -40,6 +43,7 @@ class _MyProfileViewState extends State<MyProfileView> {
   final TextEditingController _searchCountryController =
       TextEditingController();
 
+  final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
 
@@ -184,6 +188,14 @@ class _MyProfileViewState extends State<MyProfileView> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _oldPasswordController.dispose();
+    _passwordController.dispose();
+    _confirmPassController.dispose();
+    super.dispose();
+  }
+
   void showCountryModal(
     BuildContext context,
     List<CountryPhone> countryList,
@@ -292,7 +304,7 @@ class _MyProfileViewState extends State<MyProfileView> {
                       _nameController,
                       false,
                       context,
-                      () {},
+                      simpleOnChanged,
                       TextInputType.name,
                     ),
                     ValidateText(
@@ -306,7 +318,7 @@ class _MyProfileViewState extends State<MyProfileView> {
                       _emailController,
                       false,
                       context,
-                      () {},
+                      simpleOnChanged,
                       TextInputType.emailAddress,
                       isEnabled: false,
                     ),
@@ -393,7 +405,7 @@ class _MyProfileViewState extends State<MyProfileView> {
                             _phoneController,
                             false,
                             context,
-                            () {},
+                            simpleOnChanged,
                             TextInputType.number,
                           ),
                         )
@@ -405,7 +417,7 @@ class _MyProfileViewState extends State<MyProfileView> {
                       _dobController,
                       false,
                       context,
-                      () {},
+                      simpleOnChanged,
                       TextInputType.text,
                       onTap: openDatePicker,
                     ),
@@ -416,32 +428,37 @@ class _MyProfileViewState extends State<MyProfileView> {
                     ),
                     ExpansionTile(
                       tilePadding: EdgeInsets.fromLTRB(
-                        0,
-                        0,
-                        MediaQuery.of(context).size.width / 2.2,
-                        0,
-                      ),
-                      childrenPadding: const EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 0,
-                      ),
+                          0, 0, MediaQuery.of(context).size.width / 2.2, 0),
+                      childrenPadding: EdgeInsets.zero,
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.topLeft,
                       maintainState: true,
                       collapsedIconColor: ColorSelect.appThemeOrange,
                       iconColor: ColorSelect.appThemeOrange,
+                      initiallyExpanded: changePasswordOpened,
+                      onExpansionChanged: (value) {
+                        setState(() {
+                          changePasswordOpened = value;
+                        });
+                      },
                       title: Text(
                         "Change password",
                         style: textStyleViewAll(14),
                       ),
                       children: <Widget>[
+                        const SizedBox(height: 5),
                         inputField(
                           "Current Password",
-                          _passwordController,
+                          _oldPasswordController,
                           true,
                           context,
-                          () {},
+                          simpleOnChanged,
                           TextInputType.text,
+                        ),
+                        ValidateText(
+                          isVisible: _oldPasswordController.text.isEmpty &&
+                              passwordValidationFailed,
+                          text: "Please enter your old password.",
                         ),
                         const SizedBox(height: 16),
                         inputField(
@@ -449,8 +466,13 @@ class _MyProfileViewState extends State<MyProfileView> {
                           _passwordController,
                           true,
                           context,
-                          () {},
+                          simpleOnChanged,
                           TextInputType.text,
+                        ),
+                        ValidateText(
+                          isVisible: _passwordController.text.isEmpty &&
+                              passwordValidationFailed,
+                          text: "Please enter your new password.",
                         ),
                         const SizedBox(height: 16),
                         inputField(
@@ -458,8 +480,25 @@ class _MyProfileViewState extends State<MyProfileView> {
                           _confirmPassController,
                           true,
                           context,
-                          () {},
+                          simpleOnChanged,
                           TextInputType.text,
+                        ),
+                        ValidateText(
+                          isVisible: _confirmPassController.text.isEmpty &&
+                              passwordValidationFailed,
+                          text: "Please confirm your new password.",
+                        ),
+                        ValidateText(
+                          isVisible: _confirmPassController.text.isNotEmpty &&
+                              passwordMatchedFailed,
+                          text:
+                              "New password and confirm password are not same.",
+                        ),
+                        const SizedBox(height: 16),
+                        SubmitButton(
+                          onTap: updateNewPassword,
+                          text: 'Change',
+                          color: ColorSelect.lightBlack,
                         ),
                       ],
                     ),
@@ -558,5 +597,67 @@ class _MyProfileViewState extends State<MyProfileView> {
         ),
       ),
     );
+  }
+
+  simpleOnChanged(String fieldName, String value) {
+    // this is for current password.
+    if (fieldName == 'Current Password' ||
+        fieldName == 'New Password' ||
+        fieldName == 'Confirm Password') {
+      if (value.isEmpty) {
+        setState(() {
+          passwordValidationFailed = true;
+        });
+      } else {
+        setState(() {
+          passwordValidationFailed = false;
+        });
+      }
+    }
+
+    if (fieldName == 'New Password' || fieldName == 'Confirm Password') {
+      if (_passwordController.text != _confirmPassController.text) {
+        setState(() {
+          passwordMatchedFailed = true;
+        });
+      } else {
+        setState(() {
+          passwordMatchedFailed = false;
+        });
+      }
+    }
+  }
+
+  updateNewPassword() async {
+    try {
+      showLoading();
+      bool changed = await apiService.changePassword(
+        user,
+        _oldPasswordController.text,
+        _passwordController.text,
+        _confirmPassController.text,
+      );
+      hideLoading();
+      if (changed) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          locator<SnackBarService>().showSnackBarWithString(
+            'Your password is changed successfully.',
+            type: SnackBarType.success,
+          ),
+        );
+      }
+    } on CustomException catch (e) {
+      log('$e');
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        locator<SnackBarService>().showSnackBarWithString(
+          e.message,
+        ),
+      );
+    } catch (e) {
+      log('$e');
+      hideLoading();
+    }
   }
 }

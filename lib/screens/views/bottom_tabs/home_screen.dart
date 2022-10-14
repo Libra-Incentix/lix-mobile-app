@@ -1,19 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
-import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/screens/views/notifications_view.dart';
 import 'package:lix/screens/views/scan_qr_view.dart';
 import 'package:lix/screens/widgets/earn_with_lix.dart';
 import 'package:lix/screens/widgets/exclusive_deals.dart';
 import 'package:lix/screens/widgets/recommended_deals.dart';
-import 'package:lix/screens/widgets/task_proof_dialog.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   HelperService helperService = locator<HelperService>();
   late User user = locator<HelperService>().getCurrentUser()!;
   List<MarketOffer> allOffers = [];
+  List<TaskModel> allTasks = [];
+  int taskNeeded = 2;
 
   showLoading() {
     setState(() {
@@ -90,10 +92,13 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       showLoading();
       List<MarketOffer> offers = await apiService.allMarketOffers(user);
+      List<TaskModel> tasks = await apiService.getGlobalTasks(user);
       hideLoading();
+      int maxTasks = tasks.length > taskNeeded ? taskNeeded : tasks.length;
       setState(() {
         if (!mounted) return;
         allOffers = offers;
+        allTasks = tasks.getRange(0, maxTasks).toList();
       });
     } on CustomException catch (e) {
       hideLoading();
@@ -161,8 +166,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 140,
                   decoration: BoxDecoration(
                     image: const DecorationImage(
-                        image: AssetImage("assets/images/app_bg_home.png"),
-                        fit: BoxFit.fitWidth),
+                      image: AssetImage("assets/images/app_bg_home.png"),
+                      fit: BoxFit.fitWidth,
+                    ),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
@@ -260,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     //   ),
                     // );
                   },
-                  productsList: earningList,
+                  allTasks: allTasks,
                 )
               ],
             ),

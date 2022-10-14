@@ -19,7 +19,8 @@ class APIService {
     "Content-Type": "application/json",
   };
   final Map<String, String> headers = {
-    "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI"
+    "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI",
+    "accept": "application/json",
   };
 
   APIService() {
@@ -406,7 +407,6 @@ class APIService {
     Map<String, String> headers = {
       "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI",
       "Authorization": "Bearer ${user.userToken}",
-      "accept": "application/json",
     };
     request.headers.addAll(headers);
 
@@ -691,7 +691,7 @@ class APIService {
       } else {
         throw CustomException(
           code: 'Error',
-          message: body['success'] ?? '',
+          message: body['message'] ?? '',
         );
       }
     } else {
@@ -712,13 +712,11 @@ class APIService {
       Uri.parse("${apiURL}tasks/global-tasks"),
       headers: {
         ...headers,
-        "accept": "application/json",
         "Authorization": "Bearer ${user.userToken}",
       },
     );
     if (response.statusCode == 200) {
       var body = jsonDecode(response.body);
-      print(body.toString());
       if (body['success'] != null && body['data'] != null) {
         return (body['data']['data'] as List)
             .map((e) => TaskModel.fromJson(e))
@@ -726,16 +724,65 @@ class APIService {
       } else {
         throw CustomException(
           code: 'Error',
-          message: body['success'] ?? '',
+          message: body['message'] ?? '',
         );
       }
     } else {
       var body = jsonDecode(response.body);
-      print(body.toString());
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'TaskListRetrievalFailed',
           message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<bool> changePassword(
+    User user,
+    String oldPassword,
+    String newPassword,
+    String passwordConfirmation,
+  ) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}user/change/password"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+      body: {
+        "oldpassword": oldPassword,
+        "password": newPassword,
+        "password_confirmation": passwordConfirmation,
+      },
+    );
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null) {
+        return body['success'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'] ?? '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'ChangePasswordRequestFailed',
+          message: body['message'],
+        );
+      }
+
+      if (body['errors'] != null &&
+          body['errors'].runtimeType == (List<dynamic>) &&
+          (body['errors'] as List<dynamic>).isNotEmpty) {
+        throw CustomException(
+          code: 'ChangePasswordRequestFailed',
+          message: body['errors'][0]['message'],
         );
       }
 

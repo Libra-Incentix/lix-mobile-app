@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
+import 'package:lix/models/task_link.dart';
 import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
@@ -90,13 +91,20 @@ class _EarnScreenState extends State<EarnScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             onTap: () {
+              // first creating task link model...
+              TaskLinkModel taskLinkModel =
+                  TaskLinkModel(task: allTasks[index]);
+
               // TODO change this later...
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const EarnDetailsScreen(data: null),
-              //   ),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EarnDetailsScreen(
+                    taskLink: taskLinkModel,
+                    offerModel: null,
+                  ),
+                ),
+              );
             },
             title: Padding(
               padding: const EdgeInsets.only(bottom: 3.0),
