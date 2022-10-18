@@ -7,7 +7,7 @@ class MarketOffer {
   String? paymentMethod;
   int? tradeLimit;
   int? fee;
-  dynamic? benefit;
+  dynamic benefit;
   String? couponPrefix;
   String? couponCode;
   String? couponGenerationType;
@@ -45,7 +45,7 @@ class MarketOffer {
     id = json['id'];
     marketId = json['market_id'];
     organisation = json['organisation'] != null
-        ? new Organisation.fromJson(json['organisation'])
+        ? Organisation.fromJson(json['organisation'])
         : null;
     userId = json['user_id'];
     amount = json['amount'];

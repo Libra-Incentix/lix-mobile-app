@@ -789,4 +789,41 @@ class APIService {
       throw Exception('Error');
     }
   }
+
+  Future<Map<String, dynamic>> deleteUserAccount(
+    User user,
+  ) async {
+    // TODO
+    // Need to change 122 with ${user.id}
+    var response = await http.delete(
+      Uri.parse("${apiURL}user/profile/122/delete"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      print(body.toString());
+      if (body['success'] && body['data'] != null) {
+        return body;
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      print(body.toString());
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'DeleteFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
 }
