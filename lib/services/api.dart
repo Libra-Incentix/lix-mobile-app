@@ -12,8 +12,10 @@ import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
 class APIService {
-  final String _baseURL = 'http://app.libraincentix.com/api/v1/';
-  final String imagesPath = "http://app.libraincentix.com/images/";
+  final String _baseURL = 'http://app2.libraincentix.com/api/v1/';
+  final String imagesPath = "http://app2.libraincentix.com/images/";
+  final String dealImagesPath = "http://app2.libraincentix.com/";
+  final String termsPath = "https://app.libraincentix.com/terms/service";
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
     "Content-Type": "application/json",
@@ -292,6 +294,40 @@ class APIService {
     }
   }
 
+  Future<List<MarketOffer>> allRecommendedDeals(User user) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}markets/recommended"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] && body['data'] != null) {
+        return (body['data'] as List<dynamic>)
+            .map((element) => MarketOffer.fromJson(element))
+            .toList();
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: 'Offers not found.',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'DealsRetrievalFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
   Future<List<CountryPhone>> getAllPhoneCountries() async {
     var response = await http.get(
       Uri.parse("${apiURL}countries/phone"),
@@ -413,7 +449,6 @@ class APIService {
     var response = await request.send();
     var byteData = String.fromCharCodes(await response.stream.toBytes());
     var body = jsonDecode(byteData);
-    print(body);
     if (response.statusCode == 200) {
       if (body['success'] && body['data'] != null) {
         return body;
@@ -796,7 +831,7 @@ class APIService {
     // TODO
     // Need to change 122 with ${user.id}
     var response = await http.delete(
-      Uri.parse("${apiURL}user/profile/122/delete"),
+      Uri.parse("${apiURL}user/profile/${user.id}/delete"),
       headers: {
         ...headers,
         "Authorization": "Bearer ${user.userToken}",
@@ -804,7 +839,6 @@ class APIService {
     );
     if (response.statusCode == 200) {
       var body = jsonDecode(response.body);
-      print(body.toString());
       if (body['success'] && body['data'] != null) {
         return body;
       } else {
@@ -815,7 +849,6 @@ class APIService {
       }
     } else {
       var body = jsonDecode(response.body);
-      print(body.toString());
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'DeleteFailed',

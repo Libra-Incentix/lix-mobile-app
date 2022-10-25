@@ -9,6 +9,7 @@ import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/dashboard.dart';
+import 'package:lix/screens/views/terms_screen.dart';
 import 'package:lix/screens/views/verify_otp_view.dart';
 import 'package:lix/screens/widgets/country_phone_selector.dart';
 import 'package:lix/screens/widgets/input_field.dart';
@@ -427,10 +428,20 @@ class _RegisterViewState extends State<RegisterView> {
                               style: textStyleRegularBlack(14),
                             ),
                             const SizedBox(height: 14),
-                            Text(
-                              "Terms & conditions",
-                              textAlign: TextAlign.left,
-                              style: textStyleViewAll(14),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TermsScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Terms & conditions",
+                                textAlign: TextAlign.left,
+                                style: textStyleViewAll(14),
+                              ),
                             )
                           ],
                         ),

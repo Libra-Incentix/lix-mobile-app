@@ -92,7 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
   initialize() async {
     try {
       showLoading();
-      List<MarketOffer> offers = await apiService.allMarketOffers(user);
+      List<MarketOffer> offers = await apiService.allRecommendedDeals(user);
+      print("Offeres" + offers.toString());
       List<TaskModel> tasks = await apiService.getGlobalTasks(user);
       hideLoading();
       int maxTasks = tasks.length > taskNeeded ? taskNeeded : tasks.length;
@@ -245,11 +246,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // ----------Show Exclusive Details---------- //
-                ExclusiveDeals(
-                  onTap: () {},
-                  productsList: allOffers,
-                ),
+                // ----------Hidden Exclusive Details---------- //
+                // ExclusiveDeals(
+                //   onTap: () {},
+                //   productsList: allOffers,
+                // ),
                 RecommendedDeals(
                   onTap: () {},
                   productsList: allOffers,

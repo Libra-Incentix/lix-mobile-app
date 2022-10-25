@@ -20,7 +20,7 @@ class Slide2 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Daily Exclusive Reward',
+            'Libra Incentix',
             style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w500,
@@ -31,7 +31,7 @@ class Slide2 extends StatelessWidget {
             height: 8,
           ),
           Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
+            'Libra Incentix is a technology consultancy specialising in digital transformation, change management and brand loyalty.',
             style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w400,

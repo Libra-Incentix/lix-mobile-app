@@ -20,7 +20,7 @@ class Slide3 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Keep Track on your points',
+            'Brand Loyalty',
             style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w500,
@@ -31,7 +31,7 @@ class Slide3 extends StatelessWidget {
             height: 8,
           ),
           Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
+            'LIX loyalty management system is for building new loyalty programs or revamping existing ones. ',
             style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w400,

@@ -42,27 +42,31 @@ class MarketOffer {
   });
 
   MarketOffer.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    marketId = json['market_id'];
-    organisation = json['organisation'] != null
-        ? Organisation.fromJson(json['organisation'])
-        : null;
-    userId = json['user_id'];
-    amount = json['amount'];
-    paymentMethod = json['payment_method'];
-    tradeLimit = json['trade_limit'];
-    fee = json['fee'];
-    benefit = json['benefit'];
-    couponPrefix = json['coupon_prefix'];
-    couponCode = json['coupon_code'];
-    couponGenerationType = json['coupon_generation_type'];
-    instructions = json['instructions'];
-    redirectLink = json['redirect_link'];
-    offerImage = json['offer_image'];
-    status = json['status'];
-    approvalStatus = json['approval_status'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
+    try {
+      id = json['id'];
+      marketId = json['market_id'];
+      userId = json['user_id'];
+      amount = json['amount'];
+      paymentMethod = json['payment_method'];
+      tradeLimit = json['trade_limit'];
+      fee = json['fee'];
+      benefit = json['benefit'];
+      couponPrefix = json['coupon_prefix'];
+      couponCode = json['coupon_code'];
+      couponGenerationType = json['coupon_generation_type'];
+      instructions = json['instructions'];
+      redirectLink = json['redirect_link'];
+      offerImage = json['offer_image'];
+      status = json['status'];
+      approvalStatus = json['approval_status'];
+      createdAt = json['created_at'];
+      updatedAt = json['updated_at'];
+      organisation = json['created_by_organisation'] != null
+          ? Organisation.fromJson(json['created_by_organisation'])
+          : null;
+    } on Exception catch (_, e) {
+      print(e);
+    }
   }
 
   Map<String, dynamic> toJson() {

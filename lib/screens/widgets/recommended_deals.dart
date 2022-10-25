@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/services/api.dart';
 
 class RecommendedDeals extends StatefulWidget {
   final Function onTap;
@@ -84,7 +85,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: provideDealImage(allOffers[index]),
-                              fit: BoxFit.fitWidth,
+                              fit: BoxFit.fill,
                             ),
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -115,7 +116,16 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                allOffers[index].organisation?.name ?? '',
+                                (allOffers[index]
+                                            .organisation
+                                            ?.name
+                                            .toString() ??
+                                        '') +
+                                    (allOffers[index]
+                                            .organisation
+                                            ?.id
+                                            .toString() ??
+                                        ''),
                                 style: textStyleBoldBlack(16),
                               ),
                               const SizedBox(height: 4),
@@ -141,21 +151,21 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
 
   ImageProvider provideLogoImage(MarketOffer offer) {
     // TODO remove this once done.
-    // if (offer.offerImage != null && offer.offerImage!.contains('http')) {
-    //   return NetworkImage(
-    //     offer.offerImage!,
-    //   );
-    // }
+    if (offer.organisation?.avatar != null) {
+      return NetworkImage(
+        APIService().imagesPath + (offer.organisation?.avatar ?? ''),
+      );
+    }
     return const AssetImage("assets/icons/ic_brand_1.png");
   }
 
   ImageProvider provideDealImage(MarketOffer offer) {
     // TODO remove this once done.
-    // if (offer.offerImage != null && offer.offerImage!.contains('http')) {
-    //   return NetworkImage(
-    //     offer.offerImage!,
-    //   );
-    // }
+    if (offer.offerImage != null && offer.offerImage!.contains('http')) {
+      return NetworkImage(
+        offer.offerImage!,
+      );
+    }
     return const AssetImage("assets/images/ic_home_1.png");
   }
 }
