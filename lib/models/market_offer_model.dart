@@ -12,6 +12,7 @@ class MarketOffer {
   String? couponCode;
   String? couponGenerationType;
   String? instructions;
+  String? supportedCountries;
   String? redirectLink;
   String? offerImage;
   String? status;
@@ -19,27 +20,27 @@ class MarketOffer {
   String? createdAt;
   String? updatedAt;
 
-  MarketOffer({
-    this.id,
-    this.marketId,
-    this.organisation,
-    this.userId,
-    this.amount,
-    this.paymentMethod,
-    this.tradeLimit,
-    this.fee,
-    this.benefit,
-    this.couponPrefix,
-    this.couponCode,
-    this.couponGenerationType,
-    this.instructions,
-    this.redirectLink,
-    this.offerImage,
-    this.status,
-    this.approvalStatus,
-    this.createdAt,
-    this.updatedAt,
-  });
+  MarketOffer(
+      {this.id,
+      this.marketId,
+      this.organisation,
+      this.userId,
+      this.amount,
+      this.paymentMethod,
+      this.tradeLimit,
+      this.fee,
+      this.benefit,
+      this.couponPrefix,
+      this.couponCode,
+      this.couponGenerationType,
+      this.instructions,
+      this.redirectLink,
+      this.offerImage,
+      this.status,
+      this.approvalStatus,
+      this.createdAt,
+      this.updatedAt,
+      this.supportedCountries});
 
   MarketOffer.fromJson(Map<String, dynamic> json) {
     try {
@@ -54,6 +55,7 @@ class MarketOffer {
       couponPrefix = json['coupon_prefix'];
       couponCode = json['coupon_code'];
       couponGenerationType = json['coupon_generation_type'];
+      supportedCountries = json['supported_countries'];
       instructions = json['instructions'];
       redirectLink = json['redirect_link'];
       offerImage = json['offer_image'];

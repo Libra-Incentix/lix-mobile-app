@@ -82,10 +82,8 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
                 ),
                 child: SubmitButton(
                   onTap: () {
-                    if (imagePath != "" && codeReceived != "") {
-                      Navigator.of(context).pop();
-                      widget.onSubmit(imagePath, codeReceived);
-                    }
+                    Navigator.of(context).pop();
+                    widget.onSubmit(imagePath, codeReceived);
                   },
                   text: 'Submit',
                   color: ColorSelect.lightBlack,

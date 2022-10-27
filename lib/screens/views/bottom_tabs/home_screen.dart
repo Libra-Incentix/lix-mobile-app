@@ -9,6 +9,7 @@ import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/dashboard.dart';
+import 'package:lix/screens/views/deal_details_screen.dart';
 import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/screens/views/notifications_view.dart';
 import 'package:lix/screens/views/scan_qr_view.dart';
@@ -27,46 +28,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var productList = [
-    {"name": "Nike.com", "picture": "assets/images/nike_img.png", "price": 99},
-    {
-      "name": "Bobbi Brown",
-      "picture": "assets/images/bobbi_img.png",
-      "price": 99
-    },
-    {
-      "name": "Blooming Dales",
-      "picture": "assets/images/nike_img.png",
-      "price": 99
-    },
-    {"name": "Watchbox", "picture": "assets/images/bobbi_img.png", "price": 99}
-  ];
-  var dealsList = [
-    {
-      "name": "Watchbox",
-      "picture": "assets/images/ic_home_1.png",
-      "logo": "assets/icons/ic_brand_1.png",
-      "desc": "Superior Watchmaking Service"
-    },
-    {
-      "name": "Bloomingdales",
-      "picture": "assets/images/ic_home_2.png",
-      "logo": "assets/icons/ic_brand_2.png",
-      "desc": "Get the latest offers of Bloomingdales"
-    },
-  ];
-  final earningList = [
-    {
-      "name": "Share offer and earn 20 LIX",
-      "reward": "20 LIX",
-      "picture": "assets/icons/earn_1.png"
-    },
-    {
-      "name": "Complete your profile and get 30 LIX",
-      "reward": "20 LIX",
-      "picture": "assets/icons/earn_2.png"
-    }
-  ];
   bool loading = false;
   APIService apiService = locator<APIService>();
   HelperService helperService = locator<HelperService>();
@@ -93,13 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       showLoading();
       List<MarketOffer> offers = await apiService.allRecommendedDeals(user);
-      print("Offeres" + offers.toString());
       List<TaskModel> tasks = await apiService.getGlobalTasks(user);
       hideLoading();
       int maxTasks = tasks.length > taskNeeded ? taskNeeded : tasks.length;
       setState(() {
         if (!mounted) return;
-        allOffers = offers;
+        allOffers = offers.getRange(0, 3).toList();
         allTasks = tasks.getRange(0, maxTasks).toList();
       });
     } on CustomException catch (e) {
@@ -252,7 +212,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 //   productsList: allOffers,
                 // ),
                 RecommendedDeals(
-                  onTap: () {},
+                  viewAllAction: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const Dashboard(
+                            index: 1,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  onTap: (MarketOffer offer) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DealDetailsScreen(marketOffer: offer),
+                      ),
+                    );
+                  },
                   productsList: allOffers,
                   viewAllOption: true,
                 ),
@@ -269,22 +249,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  onTap: (task) {
+                  onTap: (TaskModel task) {
                     // first creating task link model...
                     TaskLinkModel taskLinkModel = TaskLinkModel(
                       task: task,
                     );
-
+                    taskLinkModel.fullLink = task.qrCodeImage;
+                    print("NOdsdd" + taskLinkModel.id.toString());
                     // TODO change this later...
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EarnDetailsScreen(
-                          taskLink: taskLinkModel,
-                          offerModel: null,
-                        ),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => EarnDetailsScreen(
+                    //       taskLink: taskLinkModel,
+                    //       offerModel: null,
+                    //     ),
+                    //   ),
+                    // );
                   },
                   allTasks: allTasks,
                 )

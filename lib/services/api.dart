@@ -427,18 +427,18 @@ class APIService {
 
   Future<Map<String, dynamic>> submitTask(User user, String taskId,
       String linkId, String imagePath, String codeReceived) async {
-    http.MultipartFile file = await http.MultipartFile.fromPath(
-      'proof_image',
-      imagePath,
-    );
-
     Uri url = Uri.parse("${apiURL}tasks/activity/${taskId}/submit");
-
     var request = http.MultipartRequest('POST', url);
-    request.files.add(file);
     request.fields['link_id'] = linkId;
     request.fields['email'] = user.email!;
     request.fields['proof'] = codeReceived;
+    if (imagesPath != "") {
+      http.MultipartFile file = await http.MultipartFile.fromPath(
+        'proof_image',
+        imagePath,
+      );
+      request.files.add(file);
+    }
 
     Map<String, String> headers = {
       "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI",

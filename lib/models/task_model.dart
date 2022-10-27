@@ -23,29 +23,29 @@ class TaskModel {
   String? avatar;
   String? createdAt;
   String? updatedAt;
-
-  TaskModel({
-    this.id,
-    this.title,
-    this.description,
-    this.teamId,
-    this.project,
-    this.link,
-    this.user,
-    this.totalCoinsAvailable,
-    this.coinsPerAction,
-    this.approvalType,
-    this.numberOfSubmissionsAllowedPerPeriod,
-    this.period,
-    this.privacyType,
-    this.proofType,
-    this.numberOfSubmissionsAllowed,
-    this.privacy,
-    this.status,
-    this.avatar,
-    this.createdAt,
-    this.updatedAt,
-  });
+  String? qrCodeImage;
+  TaskModel(
+      {this.id,
+      this.title,
+      this.description,
+      this.teamId,
+      this.project,
+      this.link,
+      this.user,
+      this.totalCoinsAvailable,
+      this.coinsPerAction,
+      this.approvalType,
+      this.numberOfSubmissionsAllowedPerPeriod,
+      this.period,
+      this.privacyType,
+      this.proofType,
+      this.numberOfSubmissionsAllowed,
+      this.privacy,
+      this.status,
+      this.avatar,
+      this.createdAt,
+      this.updatedAt,
+      this.qrCodeImage});
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     ProjectModel? pModel;
@@ -71,6 +71,7 @@ class TaskModel {
         project: pModel,
         link: lModel,
         user: user,
+        qrCodeImage: json['task_qrcode_image'],
         totalCoinsAvailable: json['total_coins_available'],
         coinsPerAction: json['coins_per_action'],
         approvalType: json['approval_type'],

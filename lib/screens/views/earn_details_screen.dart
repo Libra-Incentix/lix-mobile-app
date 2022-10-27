@@ -354,6 +354,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
           },
         );
       } else {
+        print(response.toString());
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           snackBarService.showSnackBarWithString(
@@ -363,6 +364,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       }
       hideLoading();
     } on CustomException catch (e) {
+      print(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -370,7 +372,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         ),
       );
     } catch (e) {
-      log('$e');
+      print(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(

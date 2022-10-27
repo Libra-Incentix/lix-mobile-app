@@ -19,6 +19,7 @@ import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -38,6 +39,16 @@ class _LoginViewState extends State<LoginView> {
   bool canSubmitForm = false;
   bool loading = false;
   bool isRegistered = false;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    // Optional clientId
+    clientId:
+        '68859954393-1h6a8thjnh8615bgt1ukiquv1piengem.apps.googleusercontent.com',
+    scopes: <String>[
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
 
   showLoading() {
     setState(() {
@@ -91,6 +102,13 @@ class _LoginViewState extends State<LoginView> {
         ),
       ),
     );
+  }
+
+  Future<void> loginWithGoogle() async {
+    GoogleSignInAccount? user = await _googleSignIn.signIn();
+    if (user?.email != null) {
+      _emailController.text = user?.email ?? '';
+    }
   }
 
   @override
@@ -204,7 +222,9 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     const SizedBox(height: 16),
                     ImageButton(
-                      onTap: () {},
+                      onTap: () {
+                        loginWithGoogle();
+                      },
                       text: 'Continue with Google',
                       buttonIcon: ImageAssets.googleLogoButton,
                     ),

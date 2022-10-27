@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 
 class ExpandableItem extends StatefulWidget {
@@ -17,6 +18,10 @@ class ExpandableItem extends StatefulWidget {
 }
 
 class _ExpandableItemState extends State<ExpandableItem> {
+  getChildTitle() {
+    return HtmlWidget(widget.childTitle, textStyle: expandableText(14));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -33,13 +38,7 @@ class _ExpandableItemState extends State<ExpandableItem> {
           widget.title,
           style: textStyleBoldBlack(16),
         ),
-        children: <Widget>[
-          Text(
-            widget.childTitle,
-            textAlign: TextAlign.left,
-            style: expandableText(14),
-          ),
-        ],
+        children: <Widget>[getChildTitle()],
       ),
     );
   }

@@ -8,14 +8,16 @@ import 'package:lix/services/api.dart';
 
 class RecommendedDeals extends StatefulWidget {
   final Function onTap;
+  Function? viewAllAction;
   final List<MarketOffer> productsList;
   final bool viewAllOption;
-  const RecommendedDeals({
-    Key? key,
-    required this.onTap,
-    required this.productsList,
-    required this.viewAllOption,
-  }) : super(key: key);
+  RecommendedDeals(
+      {Key? key,
+      required this.onTap,
+      required this.productsList,
+      required this.viewAllOption,
+      this.viewAllAction})
+      : super(key: key);
 
   @override
   State<RecommendedDeals> createState() => _RecommendedDealsState();
@@ -57,9 +59,14 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                   'Recommended',
                   style: textStyleBoldBlack(16),
                 ),
-                Text(
-                  'View All',
-                  style: textStyleViewAll(12),
+                GestureDetector(
+                  onTap: () {
+                    widget.viewAllAction!();
+                  },
+                  child: Text(
+                    'View All',
+                    style: textStyleViewAll(12),
+                  ),
                 ),
               ],
             ),
@@ -73,7 +80,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    widget.onTap();
+                    widget.onTap(allOffers[index]);
                   },
                   child: Container(
                     child: Column(
@@ -117,15 +124,10 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                             children: [
                               Text(
                                 (allOffers[index]
-                                            .organisation
-                                            ?.name
-                                            .toString() ??
-                                        '') +
-                                    (allOffers[index]
-                                            .organisation
-                                            ?.id
-                                            .toString() ??
-                                        ''),
+                                        .organisation
+                                        ?.name
+                                        .toString() ??
+                                    ''),
                                 style: textStyleBoldBlack(16),
                               ),
                               const SizedBox(height: 4),

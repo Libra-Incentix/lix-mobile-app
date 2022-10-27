@@ -40,6 +40,7 @@ dependencies:
   mobile_scanner: ^2.0.0
   shared_preferences: ^2.0.15
   get_it: ^7.2.0
+  google_sign_in: ^5.4.2
   http: ^0.13.5
   url_launcher: ^6.1.5
   barcode_scan2: ^4.2.1

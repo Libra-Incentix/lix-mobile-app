@@ -221,11 +221,12 @@ class _DealsScreenState extends State<DealsScreen> {
                   ),
                   // TODO this is commented because of coming from changes in RecommendedDeals page.
                   RecommendedDeals(
-                    onTap: () {
+                    onTap: (MarketOffer offer) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DealDetailsScreen(),
+                          builder: (context) =>
+                              DealDetailsScreen(marketOffer: offer),
                         ),
                       );
                     },

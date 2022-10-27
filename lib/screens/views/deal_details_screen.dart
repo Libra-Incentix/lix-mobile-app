@@ -1,22 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
+import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/models/deal_coupon_model.dart';
+import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/user.dart';
+import 'package:intl/intl.dart';
+import 'package:lix/models/wallet_details.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/ExpandableItem.dart';
 import 'package:lix/screens/widgets/expandable_card.dart';
 import 'package:lix/screens/widgets/purchase_coupondialog.dart';
 import 'package:lix/screens/widgets/radio_tile.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/snackbar.dart';
+
+import '../../services/helper.dart';
 
 class DealDetailsScreen extends StatefulWidget {
-  const DealDetailsScreen({Key? key}) : super(key: key);
+  final MarketOffer? marketOffer;
+
+  const DealDetailsScreen({Key? key, required this.marketOffer})
+      : super(key: key);
 
   @override
   State<DealDetailsScreen> createState() => _DealDetailsScreenState();
 }
 
 class _DealDetailsScreenState extends State<DealDetailsScreen> {
+  MarketOffer? marketOffer;
+  APIService apiService = locator<APIService>();
+  SnackBarService snackBarService = locator<SnackBarService>();
+  late User user = locator<HelperService>().getCurrentUser()!;
+  List<WalletDetails> wallets = [];
+  WalletDetails? lixWallet;
+  bool loading = false;
+  String selectedCountry = "";
+  List<CountryPhone> countries = [];
   final List<DealCouponModel> couponOffers = [
     DealCouponModel(
       title: "Get 10% discount on new collection items",
@@ -41,6 +63,67 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
     ),
   ];
 
+  ImageProvider provideLogoImage(MarketOffer? offer) {
+    if (offer?.organisation?.avatar != null) {
+      return NetworkImage(
+        APIService().imagesPath + (offer?.organisation?.avatar ?? ''),
+      );
+    }
+    return const AssetImage("assets/icons/ic_brand_1.png");
+  }
+
+  ImageProvider provideDealImage(MarketOffer? offer) {
+    if (offer?.offerImage != null &&
+        (offer?.offerImage ?? '').contains('http')) {
+      return NetworkImage(
+        offer?.offerImage! ?? '',
+      );
+    }
+    return const AssetImage("assets/images/ic_home_2.png");
+  }
+
+  @override
+  void initState() {
+    if (widget.marketOffer != null) {
+      marketOffer = widget.marketOffer;
+      initialize();
+    }
+    super.initState();
+  }
+
+  initialize() async {
+    try {
+      List<WalletDetails> allWallets = await apiService.getUserBalance(user);
+      List<CountryPhone> allCountries = await apiService.getAllPhoneCountries();
+
+      if (allWallets.isNotEmpty) {
+        setState(() {
+          wallets = allWallets;
+          countries = allCountries;
+          lixWallet = allWallets.singleWhere(
+            (e) => e.customCurrencyId == 2,
+          );
+        });
+      }
+
+      final split = marketOffer?.supportedCountries.toString().split(',');
+      String country = "";
+      for (int i = 0; i < split!.length; i++) {
+        var countryObj = allCountries
+            .where((element) => element.id.toString() == split[i])
+            .first;
+        if (i == 0) {
+          country = (countryObj.name ?? '');
+        } else {
+          country = "$country, ${countryObj.name ?? ''}";
+        }
+      }
+      setState(() {
+        selectedCountry = country;
+      });
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,9 +135,9 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
             Container(
               height: 215,
               width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/ic_home_1.png"),
+                  image: provideDealImage(marketOffer),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -87,10 +170,10 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
                     bottom: 10.0,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4.0),
-                      child: const Image(
+                      child: Image(
                           height: 50,
                           width: 50,
-                          image: AssetImage("assets/icons/ic_brand_1.png"),
+                          image: provideLogoImage(marketOffer),
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -103,12 +186,12 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Watchbox",
+                    marketOffer?.organisation?.name ?? '',
                     style: textStyleMediumBlack(20),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Claim the latest offers of Watchbox",
+                    marketOffer?.benefit,
                     style: customFontRegular(14, ColorSelect.lightBlack),
                   ),
                   const SizedBox(height: 24),
@@ -120,42 +203,43 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
                     ),
                     child: ExpandableCard(
                         title: "Current balance",
-                        childTitle: "40 LIX",
-                        subtitle: "40 LIX",
+                        childTitle: "10 LIX",
+                        subtitle:
+                            "${NumberFormat("###,###", "en_US").format(int.parse(lixWallet?.balance ?? '0'))} LIX",
                         leadingIcon: ImageAssets.dollarFilled),
                   ),
                   const SizedBox(height: 20),
-                  ListView.builder(
-                      padding: const EdgeInsets.only(top: 0.0),
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: couponOffers.length,
-                      itemBuilder: (context, index) {
-                        return RadioTile(
-                            onTap: () {}, listItem: couponOffers[index]);
-                      }),
+                  // ListView.builder(
+                  //     padding: const EdgeInsets.only(top: 0.0),
+                  //     scrollDirection: Axis.vertical,
+                  //     shrinkWrap: true,
+                  //     physics: const NeverScrollableScrollPhysics(),
+                  //     itemCount: couponOffers.length,
+                  //     itemBuilder: (context, index) {
+                  //       return RadioTile(
+                  //           onTap: () {}, listItem: couponOffers[index]);
+                  //     }),
                   ExpandableItem(
                     title: "About this deal",
-                    childTitle:
-                        "Morbi tincidunt lectus non sagittis tincidunt nulla nec metus at nunc dignissim placerat.",
+                    childTitle: marketOffer?.instructions ?? '',
                   ),
                   Container(
                       height: 1,
                       width: MediaQuery.of(context).size.width,
                       color: ColorSelect.appThemeGrey),
-                  ExpandableItem(
-                    title: "How to use",
-                    childTitle: "Lorem ipsum is simply dummy text.",
-                  ),
+                  // ExpandableItem(
+                  //   title: "How to use",
+                  //   childTitle: marketOffer?.instructions ?? '',
+                  // ),
                   Container(
                       height: 1,
                       width: MediaQuery.of(context).size.width,
                       color: ColorSelect.appThemeGrey),
-                  ExpandableItem(
-                    title: "Locations",
-                    childTitle: "Lorem ipsum is simply dummy text.",
-                  ),
+                  if (selectedCountry != "")
+                    ExpandableItem(
+                      title: "Locations",
+                      childTitle: selectedCountry,
+                    ),
                   Container(
                       height: 1,
                       width: MediaQuery.of(context).size.width,
