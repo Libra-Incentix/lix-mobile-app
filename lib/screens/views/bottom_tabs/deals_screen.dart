@@ -104,7 +104,7 @@ class _DealsScreenState extends State<DealsScreen> {
       setState(() {
         if (!mounted) return;
         allCategories = categories;
-        allCategories[0].selected = true;
+        // allCategories[0].selected = true;
       });
 
       // fetching all market offers...
@@ -137,6 +137,14 @@ class _DealsScreenState extends State<DealsScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  filterCategories(categoryId) {
+    var tempDeals = allOffers
+        .where((element) => element.organisation!.categoryId == categoryId);
+    setState(() {
+      allOffers = tempDeals as List<MarketOffer>;
+    });
   }
 
   @override
@@ -182,6 +190,7 @@ class _DealsScreenState extends State<DealsScreen> {
                               Category c = category;
                               c.selected = true;
                               allCategories[index] = c;
+                              filterCategories(c.id);
                             });
                           },
                         );

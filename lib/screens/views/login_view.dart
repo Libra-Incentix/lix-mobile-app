@@ -215,12 +215,12 @@ class _LoginViewState extends State<LoginView> {
                       ],
                     ),
                     const SizedBox(height: 40),
-                    ImageButton(
-                      onTap: () {},
-                      text: 'Continue with Apple',
-                      buttonIcon: ImageAssets.appleLogoButton,
-                    ),
-                    const SizedBox(height: 16),
+                    // ImageButton(
+                    //   onTap: () {},
+                    //   text: 'Continue with Apple',
+                    //   buttonIcon: ImageAssets.appleLogoButton,
+                    // ),
+                    // const SizedBox(height: 16),
                     ImageButton(
                       onTap: () {
                         loginWithGoogle();
@@ -228,12 +228,12 @@ class _LoginViewState extends State<LoginView> {
                       text: 'Continue with Google',
                       buttonIcon: ImageAssets.googleLogoButton,
                     ),
-                    const SizedBox(height: 16),
-                    ImageButton(
-                      onTap: () {},
-                      text: 'Continue with Facebook',
-                      buttonIcon: ImageAssets.fbLogoButton,
-                    )
+                    // const SizedBox(height: 16),
+                    // ImageButton(
+                    //   onTap: () {},
+                    //   text: 'Continue with Facebook',
+                    //   buttonIcon: ImageAssets.fbLogoButton,
+                    // )
                   ],
                 ),
               ),

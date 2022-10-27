@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -16,11 +17,10 @@ import 'package:share_plus/share_plus.dart';
 class ClaimTaskDialog extends StatefulWidget {
   final String reward;
   final String fullLink;
-  const ClaimTaskDialog({
-    Key? key,
-    required this.reward,
-    required this.fullLink,
-  }) : super(key: key);
+  final String? qrImage;
+  const ClaimTaskDialog(
+      {Key? key, required this.reward, required this.fullLink, this.qrImage})
+      : super(key: key);
 
   @override
   State<ClaimTaskDialog> createState() => _ClaimTaskDialogState();
@@ -121,14 +121,22 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      RepaintBoundary(
-                        key: globalKey,
-                        child: QrImage(
-                          data: widget.fullLink,
-                          size: 300,
-                          backgroundColor: Colors.white,
+                      if (widget.fullLink != 'null')
+                        RepaintBoundary(
+                          key: globalKey,
+                          child: QrImage(
+                            data: widget.fullLink,
+                            size: 300,
+                            backgroundColor: Colors.white,
+                          ),
                         ),
-                      ),
+                      if (widget.qrImage!.isNotEmpty &&
+                          widget.qrImage! != 'null')
+                        Image.memory(
+                          const Base64Decoder().convert(widget.qrImage ?? ''),
+                          height: 300,
+                          width: 300,
+                        ),
                       const SizedBox(height: 12),
                       SubmitButton(
                         onTap: saveAndShareQR,
@@ -161,26 +169,47 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
   }
 
   saveAndShareQR() async {
-    Timer(
-      const Duration(seconds: 1),
-      () async {
-        try {
-          dynamic boundary = globalKey.currentContext!.findRenderObject();
-          var image = await boundary.toImage();
-          ByteData byteData = await image.toByteData(
-            format: ImageByteFormat.png,
-          );
-          Uint8List pngBytes = byteData.buffer.asUint8List();
+    if (widget.fullLink != 'null') {
+      Timer(
+        const Duration(seconds: 1),
+        () async {
+          try {
+            dynamic boundary = globalKey.currentContext!.findRenderObject();
+            var image = await boundary.toImage();
+            ByteData byteData = await image.toByteData(
+              format: ImageByteFormat.png,
+            );
+            Uint8List pngBytes = byteData.buffer.asUint8List();
 
-          final tempDir = await getTemporaryDirectory();
-          final file = await File('${tempDir.path}/image.png').create();
-          await file.writeAsBytes(pngBytes);
+            final tempDir = await getTemporaryDirectory();
+            final file = await File('${tempDir.path}/image.png').create();
+            await file.writeAsBytes(pngBytes);
 
-          await Share.shareFiles(['${tempDir.path}/image.png']);
-        } catch (e) {
-          log(e.toString());
-        }
-      },
-    );
+            await Share.shareFiles(['${tempDir.path}/image.png']);
+          } catch (e) {
+            log(e.toString());
+          }
+        },
+      );
+    } else if (widget.qrImage != '') {
+      Timer(
+        const Duration(seconds: 1),
+        () async {
+          try {
+            Uint8List byteData;
+            byteData = const Base64Decoder().convert(widget.qrImage ?? '');
+            Uint8List pngBytes = byteData.buffer.asUint8List();
+
+            final tempDir = await getTemporaryDirectory();
+            final file = await File('${tempDir.path}/image.png').create();
+            await file.writeAsBytes(pngBytes);
+
+            await Share.shareFiles(['${tempDir.path}/image.png']);
+          } catch (e) {
+            log(e.toString());
+          }
+        },
+      );
+    }
   }
 }

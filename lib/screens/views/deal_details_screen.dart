@@ -244,10 +244,10 @@ class _DealDetailsScreenState extends State<DealDetailsScreen> {
                       height: 1,
                       width: MediaQuery.of(context).size.width,
                       color: ColorSelect.appThemeGrey),
-                  ExpandableItem(
-                    title: "Terms & conditions",
-                    childTitle: "Lorem ipsum is simply dummy text.",
-                  ),
+                  // ExpandableItem(
+                  //   title: "Terms & conditions",
+                  //   childTitle: "Lorem ipsum is simply dummy text.",
+                  // ),
                   const SizedBox(height: 100),
                 ],
               ),

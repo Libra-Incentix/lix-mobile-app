@@ -9,7 +9,9 @@ import 'package:lix/screens/widgets/submit_button.dart';
 
 class TaskProofDialog extends StatefulWidget {
   Function onSubmit;
-  TaskProofDialog({Key? key, required this.onSubmit}) : super(key: key);
+  String proofType;
+  TaskProofDialog({Key? key, required this.onSubmit, required this.proofType})
+      : super(key: key);
 
   @override
   State<TaskProofDialog> createState() => _TaskProofDialogState();
@@ -65,11 +67,17 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
               const SizedBox(
                 height: 15,
               ),
-              textProof(fullWidth),
-              const SizedBox(
-                height: 15,
-              ),
-              imageProof(fullWidth),
+              if (widget.proofType.toLowerCase() == "both" ||
+                  widget.proofType.toLowerCase() == "text")
+                textProof(fullWidth),
+              if (widget.proofType.toLowerCase() == "both" ||
+                  widget.proofType.toLowerCase() == "text")
+                const SizedBox(
+                  height: 15,
+                ),
+              if (widget.proofType.toLowerCase() == "both" ||
+                  widget.proofType.toLowerCase() == "image")
+                imageProof(fullWidth),
               const SizedBox(
                 height: 15,
               ),

@@ -7,6 +7,7 @@ import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/buy_offer_success.dart';
+import 'package:lix/models/country_phone_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/task_link.dart';
@@ -26,6 +27,7 @@ import 'package:share_plus/share_plus.dart';
 class EarnDetailsScreen extends StatefulWidget {
   final TaskLinkModel? taskLink;
   final OfferModel? offerModel;
+
   const EarnDetailsScreen({
     Key? key,
     required this.taskLink,
@@ -40,6 +42,8 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   TaskLinkModel? taskLinkModel;
   TaskModel? task;
   OfferModel? offerModel;
+  String selectedCountry = "";
+  List<CountryPhone> countries = [];
   APIService apiService = locator<APIService>();
   SnackBarService snackBarService = locator<SnackBarService>();
   late User user = locator<HelperService>().getCurrentUser()!;
@@ -61,6 +65,25 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     });
   }
 
+  ImageProvider getLogoAvatar(OfferModel? offer) {
+    if (offer?.createdByOrganisation?.avatar != null) {
+      return NetworkImage(
+        APIService().imagesPath + (offer?.createdByOrganisation?.avatar ?? ''),
+      );
+    }
+    return const AssetImage("assets/icons/ic_brand_1.png");
+  }
+
+  ImageProvider provideOfferImage(OfferModel? offer) {
+    if (offer?.offerImage != null &&
+        (offer?.offerImage ?? '').contains('http')) {
+      return NetworkImage(
+        offer?.offerImage! ?? '',
+      );
+    }
+    return const AssetImage("assets/images/ic_home_2.png");
+  }
+
   @override
   void initState() {
     if (widget.taskLink != null) {
@@ -69,6 +92,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       isTask = true;
     } else {
       offerModel = widget.offerModel;
+      initOfferModel();
       isTask = false;
     }
     super.initState();
@@ -77,6 +101,27 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  initOfferModel() async {
+    List<CountryPhone> allCountries = await apiService.getAllPhoneCountries();
+    final split = offerModel?.supportedCountries.toString().split(',');
+    String country = "";
+    for (int i = 0; i < split!.length; i++) {
+      var countryArray =
+          allCountries.where((element) => element.id.toString() == split[i]);
+      if (countryArray.isNotEmpty) {
+        var countryObj = countryArray.first;
+        if (i == 0) {
+          country = (countryObj.name ?? '');
+        } else {
+          country = "$country, ${countryObj.name ?? ''}";
+        }
+      }
+    }
+    setState(() {
+      selectedCountry = country;
+    });
   }
 
   @override
@@ -96,7 +141,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: offerImage(),
+                        image: coverImage(),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -129,10 +174,10 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                           bottom: 10.0,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4.0),
-                            child: const Image(
+                            child: Image(
                               height: 50,
                               width: 50,
-                              image: AssetImage("assets/icons/ic_brand_1.png"),
+                              image: logoImage(),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -155,14 +200,15 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                         taskRewardOrFee(),
                         const SizedBox(height: 32),
                         ExpandableItem(
-                          title: "About this deal",
-                          childTitle:
-                              "Morbi tincidunt lectus non sagittis tincidunt nulla nec metus at nunc dignissim placerat.",
-                        ),
-                        ExpandableItem(
-                          title: "Terms & conditions",
-                          childTitle: "Lorem ipsum is simply dummy text.",
-                        ),
+                            title: "About this deal",
+                            childTitle: isTask
+                                ? (task!.description ?? '')
+                                : (offerModel!.instructions ?? '')),
+                        if (selectedCountry != "")
+                          ExpandableItem(
+                            title: "Locations",
+                            childTitle: selectedCountry,
+                          ),
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -185,11 +231,19 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     );
   }
 
-  ImageProvider offerImage() {
+  ImageProvider coverImage() {
     if (isTask) {
       return const AssetImage("assets/images/deal_details_bg.png");
     } else {
+      return provideOfferImage(offerModel);
+    }
+  }
+
+  ImageProvider logoImage() {
+    if (isTask) {
       return const AssetImage("assets/images/deal_details_bg.png");
+    } else {
+      return getLogoAvatar(offerModel);
     }
   }
 
@@ -259,7 +313,11 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
 
   claim() {
     if (isTask) {
-      showProofDialog();
+      if (taskLinkModel!.task!.proofType == "nothing") {
+        submitTaskWithoutImage("");
+      } else {
+        showProofDialog();
+      }
     } else {
       claimOffer();
     }
@@ -273,7 +331,9 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return TaskProofDialog(onSubmit: onSubmitProof);
+        return TaskProofDialog(
+            onSubmit: onSubmitProof,
+            proofType: taskLinkModel!.task!.proofType ?? 'text');
       },
     );
   }
@@ -336,12 +396,8 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   Future submitTask(imagePath, codeReceived) async {
     try {
       showLoading();
-      Map<String, dynamic> response = await apiService.submitTask(
-          user,
-          task!.id.toString(),
-          taskLinkModel!.id!.toString(),
-          imagePath,
-          codeReceived);
+      Map<String, dynamic> response = await apiService.submitTaskMultipart(
+          user, task!.id.toString(), imagePath, codeReceived);
 
       if (response['success'] != null && response['success']) {
         showDialog(
@@ -350,6 +406,52 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
             return ClaimTaskDialog(
               reward: task!.coinsPerAction.toString(),
               fullLink: taskLinkModel!.fullLink!,
+            );
+          },
+        );
+      } else {
+        print(response.toString());
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          snackBarService.showSnackBarWithString(
+            response['message'] ?? 'Unable to claim this task...',
+          ),
+        );
+      }
+      hideLoading();
+    } on CustomException catch (e) {
+      print(e.toString());
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          e.message,
+        ),
+      );
+    } catch (e) {
+      print(e.toString());
+      hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          'Unable to claim this task...',
+        ),
+      );
+    }
+  }
+
+  Future submitTaskWithoutImage(codeReceived) async {
+    try {
+      showLoading();
+      Map<String, dynamic> response = await apiService.submitTaskPost(
+          user, task!.id.toString(), codeReceived);
+
+      if (response['success'] != null && response['success']) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ClaimTaskDialog(
+              reward: task!.coinsPerAction.toString(),
+              fullLink: taskLinkModel!.fullLink.toString(),
+              qrImage: task!.qrCodeImage,
             );
           },
         );

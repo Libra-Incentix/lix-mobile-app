@@ -4,6 +4,7 @@ import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/task_link.dart';
 import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
@@ -225,11 +226,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   onTap: (MarketOffer offer) {
+                    OfferModel offerModel = OfferModel.fromMarkerOffer(offer);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DealDetailsScreen(marketOffer: offer),
+                        builder: (context) => EarnDetailsScreen(
+                          offerModel: offerModel,
+                          taskLink: null,
+                        ),
                       ),
                     );
                   },
@@ -254,18 +258,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     TaskLinkModel taskLinkModel = TaskLinkModel(
                       task: task,
                     );
-                    taskLinkModel.fullLink = task.qrCodeImage;
-                    print("NOdsdd" + taskLinkModel.id.toString());
+                    print(taskLinkModel.task?.id);
                     // TODO change this later...
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => EarnDetailsScreen(
-                    //       taskLink: taskLinkModel,
-                    //       offerModel: null,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EarnDetailsScreen(
+                          taskLink: taskLinkModel,
+                          offerModel: null,
+                        ),
+                      ),
+                    );
                   },
                   allTasks: allTasks,
                 )

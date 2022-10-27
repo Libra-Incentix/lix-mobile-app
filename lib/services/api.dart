@@ -425,14 +425,13 @@ class APIService {
     }
   }
 
-  Future<Map<String, dynamic>> submitTask(User user, String taskId,
-      String linkId, String imagePath, String codeReceived) async {
+  Future<Map<String, dynamic>> submitTaskMultipart(
+      User user, String taskId, String imagePath, String codeReceived) async {
     Uri url = Uri.parse("${apiURL}tasks/activity/${taskId}/submit");
     var request = http.MultipartRequest('POST', url);
-    request.fields['link_id'] = linkId;
     request.fields['email'] = user.email!;
     request.fields['proof'] = codeReceived;
-    if (imagesPath != "") {
+    if (imagePath.isNotEmpty) {
       http.MultipartFile file = await http.MultipartFile.fromPath(
         'proof_image',
         imagePath,
@@ -449,6 +448,38 @@ class APIService {
     var response = await request.send();
     var byteData = String.fromCharCodes(await response.stream.toBytes());
     var body = jsonDecode(byteData);
+    if (response.statusCode == 200) {
+      if (body['success'] && body['data'] != null) {
+        return body;
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'TaskSubmitFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<Map<String, dynamic>> submitTaskPost(
+      User user, String taskId, String codeReceived) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}tasks/activity/${taskId}/submit"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+      body: {"email": user.email!, "proof": codeReceived},
+    );
+    var body = jsonDecode(response.body);
     if (response.statusCode == 200) {
       if (body['success'] && body['data'] != null) {
         return body;

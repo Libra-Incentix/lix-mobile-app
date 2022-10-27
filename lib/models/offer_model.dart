@@ -1,3 +1,4 @@
+import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/models/user.dart';
 
 class OfferModel {
@@ -84,6 +85,16 @@ class OfferModel {
     expiresAt = json["expires_at"];
     createdAt = json["created_at"];
     updatedAt = json["updated_at"];
+  }
+  OfferModel.fromMarkerOffer(MarketOffer offer) {
+    id = offer.id;
+    fee = offer.fee;
+    benefit = offer.benefit;
+    offerImage = offer.offerImage;
+    instructions = offer.instructions;
+    supportedCountries = offer.supportedCountries;
+    createdByOrganisation =
+        CreatedByOrganisation(avatar: offer.organisation!.avatar);
   }
 }
 
