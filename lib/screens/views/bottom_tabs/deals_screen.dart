@@ -4,6 +4,7 @@ import 'package:lix/locator.dart';
 import 'package:lix/models/category_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/deal_details_screen.dart';
@@ -77,6 +78,7 @@ class _DealsScreenState extends State<DealsScreen> {
   late User user = locator<HelperService>().getCurrentUser()!;
   SnackBarService snackBarService = locator<SnackBarService>();
   List<MarketOffer> allOffers = [];
+  List<MarketOffer> initialOffers = [];
   List<Category> allCategories = [];
   String sortingOrder = 'asc';
 
@@ -114,6 +116,7 @@ class _DealsScreenState extends State<DealsScreen> {
       setState(() {
         if (!mounted) return;
         allOffers = offers;
+        initialOffers = offers;
       });
       hideLoading();
     } on CustomException catch (e) {
@@ -139,11 +142,15 @@ class _DealsScreenState extends State<DealsScreen> {
     super.dispose();
   }
 
+  List<MarketOffer> filterRequest(categoryId) {
+    return initialOffers
+        .where((element) => element.organisation!.categoryId == categoryId)
+        .toList();
+  }
+
   filterCategories(categoryId) {
-    var tempDeals = allOffers
-        .where((element) => element.organisation!.categoryId == categoryId);
     setState(() {
-      allOffers = tempDeals as List<MarketOffer>;
+      allOffers = filterRequest(categoryId);
     });
   }
 
