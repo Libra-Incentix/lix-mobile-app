@@ -50,6 +50,8 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   late User user = locator<HelperService>().getCurrentUser()!;
   bool isTask = true;
   Widget? qrImage;
+  List<WalletDetails> wallets = [];
+  WalletDetails? lixWallet;
   bool loading = false;
 
   showLoading() {
@@ -66,13 +68,27 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     });
   }
 
-  ImageProvider getLogoAvatar(OfferModel? offer) {
+  ImageProvider getOfferAvatar(OfferModel? offer) {
     if (offer?.createdByOrganisation?.avatar != null) {
       return NetworkImage(
         APIService().imagesPath + (offer?.createdByOrganisation?.avatar ?? ''),
       );
     }
-    return const AssetImage("assets/icons/ic_brand_1.png");
+    return const AssetImage("assets/images/ic_home_1.png");
+  }
+
+  ImageProvider getTaskAvatar(TaskModel? taskModel) {
+    if (taskModel != null) {
+      return NetworkImage(taskModel.avatar ?? '');
+    }
+    return const AssetImage("assets/icons/ic_home_1.png");
+  }
+
+  ImageProvider getTaskImage(TaskModel? taskModel) {
+    if (taskModel != null && taskModel.avatar!.contains('http')) {
+      return NetworkImage(taskModel.avatar ?? '');
+    }
+    return const AssetImage("assets/images/no-img.png");
   }
 
   ImageProvider provideOfferImage(OfferModel? offer) {
@@ -89,6 +105,14 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     try {
       showLoading();
       List<WalletDetails> allWallets = await apiService.getUserBalance(user);
+      if (allWallets.isNotEmpty) {
+        setState(() {
+          wallets = allWallets;
+          lixWallet = allWallets.singleWhere(
+            (e) => e.customCurrencyId == 2,
+          );
+        });
+      }
       hideLoading();
     } on CustomException catch (e) {
       devtools.log('$e');
@@ -186,19 +210,20 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                             ),
                           ),
                         ),
-                        Positioned(
-                          left: 10.0,
-                          bottom: 10.0,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4.0),
-                            child: Image(
-                              height: 50,
-                              width: 50,
-                              image: logoImage(),
-                              fit: BoxFit.cover,
+                        if (!isTask)
+                          Positioned(
+                            left: 10.0,
+                            bottom: 10.0,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4.0),
+                              child: Image(
+                                height: 50,
+                                width: 50,
+                                image: logoImage(),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -240,18 +265,14 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
 
   ImageProvider coverImage() {
     if (isTask) {
-      return const AssetImage("assets/images/deal_details_bg.png");
+      return getTaskImage(task);
     } else {
       return provideOfferImage(offerModel);
     }
   }
 
   ImageProvider logoImage() {
-    if (isTask) {
-      return const AssetImage("assets/images/deal_details_bg.png");
-    } else {
-      return getLogoAvatar(offerModel);
-    }
+    return getOfferAvatar(offerModel);
   }
 
   Widget taskRewardOrFee() {
@@ -348,6 +369,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   Future claimOffer() async {
     try {
       showLoading();
+      print(offerModel!.id!.toString());
       Map<String, dynamic> response = await apiService.buyOffer(
         user,
         offerModel!.id!.toString(),
@@ -498,15 +520,23 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16),
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-      child: SubmitButton(
-        onTap: claim,
-        text: "Claim Reward",
-        disabled: false,
-        color: Colors.black,
-      ),
-    );
+    if ((lixWallet != null &&
+            int.parse(lixWallet!.balance!) >= (offerModel?.fee ?? 0)) ||
+        isTask) {
+      return Container(
+        margin: const EdgeInsets.only(left: 16, right: 16),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+        child: SubmitButton(
+          onTap: claim,
+          text: isTask ? "Claim Reward" : "Buy coupon",
+          disabled: false,
+          color: Colors.black,
+        ),
+      );
+    } else {
+      return Container(
+        height: 0,
+      );
+    }
   }
 }

@@ -149,6 +149,9 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
   Image provideLogoImage(MarketOffer offer) {
     if (offer.organisation?.avatar != null) {
       return Image.network(
+        height: 50,
+        width: 50,
+        fit: BoxFit.cover,
         APIService().imagesPath + (offer.organisation?.avatar ?? ''),
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(

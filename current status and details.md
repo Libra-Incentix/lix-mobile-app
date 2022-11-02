@@ -22,7 +22,7 @@ d) Logout ##DONE
 
 
 7. Earn ##DONE 
-8. Earn Detail Page ##Pending (Need instructions parameter in global-tasks api )
+8. Earn Detail Page ##DONE 
 8. Deals ##DONE
 9. Deal Detail Page ##Pending (Buy coupon is left)
 11. Notification ##Displaying an mark read is done.

@@ -267,16 +267,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DealDetailsScreen(
-                          marketOffer: offer,
+                        builder: (context) => EarnDetailsScreen(
+                          offerModel: offerModel,
+                          taskLink: null,
                         ),
                       ),
-                      // MaterialPageRoute(
-                      //   builder: (context) => EarnDetailsScreen(
-                      //     offerModel: offerModel,
-                      //     taskLink: null,
-                      //   ),
-                      // ),
                     );
                   },
                   productsList: allOffers,
@@ -300,7 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     TaskLinkModel taskLinkModel = TaskLinkModel(
                       task: task,
                     );
-                    print(taskLinkModel.task?.id);
                     // TODO change this later...
                     Navigator.push(
                       context,

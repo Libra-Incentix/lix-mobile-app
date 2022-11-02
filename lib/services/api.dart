@@ -74,7 +74,7 @@ class APIService {
 
   Future socialLogin(String token) async {
     var response = await http.get(
-      Uri.parse("${apiURL}social/login/service=$token"),
+      Uri.parse("${apiURL}social/login/$token"),
       headers: headers,
     );
 

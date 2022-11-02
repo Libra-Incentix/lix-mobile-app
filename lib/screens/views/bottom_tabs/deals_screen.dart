@@ -8,6 +8,7 @@ import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/views/deal_details_screen.dart';
+import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/screens/widgets/category_item.dart';
 import 'package:lix/screens/widgets/recommended_deals.dart';
 import 'package:lix/services/api.dart';
@@ -237,11 +238,13 @@ class _DealsScreenState extends State<DealsScreen> {
                   ),
                   RecommendedDeals(
                     onTap: (MarketOffer offer) {
+                      OfferModel offerModel = OfferModel.fromMarkerOffer(offer);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DealDetailsScreen(
-                            marketOffer: offer,
+                          builder: (context) => EarnDetailsScreen(
+                            offerModel: offerModel,
+                            taskLink: null,
                           ),
                         ),
                       );
