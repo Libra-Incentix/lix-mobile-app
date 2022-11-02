@@ -1,9 +1,8 @@
-import 'dart:developer';
+import 'dart:developer' as devtools show log;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
-import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/notification_model.dart';
@@ -59,9 +58,9 @@ class _NotificationsViewState extends State<NotificationsView> {
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(e.message),
       );
-      log('$e');
+      devtools.log('$e');
     } catch (e) {
-      log('$e');
+      devtools.log('$e');
       hideLoading();
     }
   }
@@ -125,6 +124,7 @@ class _NotificationsViewState extends State<NotificationsView> {
               itemCount: _notifications.length,
               itemBuilder: (context, index) {
                 return ListTile(
+                  onTap: () => markNotificationAsRead(_notifications[index]),
                   leading: const Icon(
                     Icons.notifications,
                   ),
@@ -156,5 +156,28 @@ class _NotificationsViewState extends State<NotificationsView> {
               },
             ),
     );
+  }
+
+  markNotificationAsRead(NotificationModel notification) async {
+    // if not read then mark as read...
+    if (!notification.read!) {
+      try {
+        showLoading();
+        await apiService.markNotificationAsRead(user, notification.id!);
+        // now update the notification itself.
+        setState(() {
+          for (var element in _notifications) {
+            if (element.id! == notification.id!) {
+              element.read = true;
+              element.readStatus = 1;
+            }
+          }
+        });
+        hideLoading();
+      } catch (e) {
+        hideLoading();
+        devtools.log('$e');
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -13,6 +13,7 @@ import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/task_link.dart';
 import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
+import 'package:lix/models/wallet_details.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/ExpandableItem.dart';
 import 'package:lix/screens/widgets/claim_coupondialog.dart';
@@ -84,8 +85,23 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     return const AssetImage("assets/images/ic_home_2.png");
   }
 
+  initialize() async {
+    try {
+      showLoading();
+      List<WalletDetails> allWallets = await apiService.getUserBalance(user);
+      hideLoading();
+    } on CustomException catch (e) {
+      devtools.log('$e');
+      hideLoading();
+    } catch (e) {
+      devtools.log('$e');
+      hideLoading();
+    }
+  }
+
   @override
   void initState() {
+    initialize();
     if (widget.taskLink != null) {
       taskLinkModel = widget.taskLink;
       task = widget.taskLink!.task;
@@ -108,8 +124,9 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     final split = offerModel?.supportedCountries.toString().split(',');
     String country = "";
     for (int i = 0; i < split!.length; i++) {
-      var countryArray =
-          allCountries.where((element) => element.id.toString() == split[i]);
+      var countryArray = allCountries.where(
+        (element) => element.id.toString() == split[i],
+      );
       if (countryArray.isNotEmpty) {
         var countryObj = countryArray.first;
         if (i == 0) {
@@ -200,10 +217,11 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                         taskRewardOrFee(),
                         const SizedBox(height: 32),
                         ExpandableItem(
-                            title: "About this deal",
-                            childTitle: isTask
-                                ? (task!.description ?? '')
-                                : (offerModel!.instructions ?? '')),
+                          title: "About this deal",
+                          childTitle: isTask
+                              ? (task!.description ?? '')
+                              : (offerModel!.instructions ?? ''),
+                        ),
                         if (selectedCountry != "")
                           ExpandableItem(
                             title: "Locations",
@@ -216,18 +234,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                 ],
               ),
             ),
-      bottomSheet: loading
-          ? Container(height: 0)
-          : Container(
-              margin: const EdgeInsets.only(left: 16, right: 16),
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-              child: SubmitButton(
-                onTap: claim,
-                text: "Claim Reward",
-                disabled: false,
-                color: Colors.black,
-              ),
-            ),
+      bottomSheet: showClaimButtonIfEligible(),
     );
   }
 
@@ -383,7 +390,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         ),
       );
     } catch (e) {
-      log('$e');
+      devtools.log('$e');
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -482,5 +489,24 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         ),
       );
     }
+  }
+
+  Widget showClaimButtonIfEligible() {
+    if (loading) {
+      return Container(
+        height: 0,
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(left: 16, right: 16),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+      child: SubmitButton(
+        onTap: claim,
+        text: "Claim Reward",
+        disabled: false,
+        color: Colors.black,
+      ),
+    );
   }
 }

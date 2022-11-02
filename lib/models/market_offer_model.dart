@@ -13,6 +13,7 @@ class MarketOffer {
   String? couponGenerationType;
   String? instructions;
   String? supportedCountries;
+  List<dynamic>? supportedCountriesList;
   String? redirectLink;
   String? offerImage;
   String? status;
@@ -20,29 +21,41 @@ class MarketOffer {
   String? createdAt;
   String? updatedAt;
 
-  MarketOffer(
-      {this.id,
-      this.marketId,
-      this.organisation,
-      this.userId,
-      this.amount,
-      this.paymentMethod,
-      this.tradeLimit,
-      this.fee,
-      this.benefit,
-      this.couponPrefix,
-      this.couponCode,
-      this.couponGenerationType,
-      this.instructions,
-      this.redirectLink,
-      this.offerImage,
-      this.status,
-      this.approvalStatus,
-      this.createdAt,
-      this.updatedAt,
-      this.supportedCountries});
+  MarketOffer({
+    this.id,
+    this.marketId,
+    this.organisation,
+    this.userId,
+    this.amount,
+    this.paymentMethod,
+    this.tradeLimit,
+    this.fee,
+    this.benefit,
+    this.couponPrefix,
+    this.couponCode,
+    this.couponGenerationType,
+    this.instructions,
+    this.redirectLink,
+    this.offerImage,
+    this.status,
+    this.approvalStatus,
+    this.createdAt,
+    this.updatedAt,
+    this.supportedCountries,
+    this.supportedCountriesList,
+  });
 
   MarketOffer.fromJson(Map<String, dynamic> json) {
+    List<dynamic> sCL = [];
+    String sC = '';
+    if (json['supported_countries'].runtimeType == List<dynamic>) {
+      sCL = json['supported_countries'];
+    }
+
+    if (json['supported_countries'].runtimeType == 'String') {
+      sC = json['supported_countries'];
+    }
+
     try {
       id = json['id'];
       marketId = json['market_id'];
@@ -55,7 +68,7 @@ class MarketOffer {
       couponPrefix = json['coupon_prefix'];
       couponCode = json['coupon_code'];
       couponGenerationType = json['coupon_generation_type'];
-      supportedCountries = json['supported_countries'];
+      supportedCountries = sC;
       instructions = json['instructions'];
       redirectLink = json['redirect_link'];
       offerImage = json['offer_image'];
@@ -63,6 +76,7 @@ class MarketOffer {
       approvalStatus = json['approval_status'];
       createdAt = json['created_at'];
       updatedAt = json['updated_at'];
+      supportedCountriesList = sCL;
       organisation = json['created_by_organisation'] != null
           ? Organisation.fromJson(json['created_by_organisation'])
           : null;

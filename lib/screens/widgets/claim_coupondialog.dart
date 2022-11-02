@@ -120,7 +120,10 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                           IconButton(
                             onPressed: () async {
                               await Clipboard.setData(
-                                  ClipboardData(text: buyOfferSuccess.coupon));
+                                ClipboardData(
+                                  text: buyOfferSuccess.coupon,
+                                ),
+                              );
                             },
                             icon: const Icon(
                               Icons.copy,

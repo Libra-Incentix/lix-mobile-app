@@ -3,13 +3,14 @@ import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/login_view.dart';
+import 'package:lix/screens/views/privacy_screen.dart';
 import 'package:lix/screens/widgets/settings_item.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
 
 class PrivacySettingsScreen extends StatefulWidget {
-  PrivacySettingsScreen({Key? key}) : super(key: key);
+  const PrivacySettingsScreen({Key? key}) : super(key: key);
 
   @override
   State<PrivacySettingsScreen> createState() => _PrivacySettingsScreenState();
@@ -150,7 +151,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
               shrinkWrap: true,
               children: <Widget>[
                 SettingsItem(
-                  onTap: () {},
+                  onTap: openPrivacyPage,
                   icon: ImageAssets.settingIconPrivacy,
                   text: "Read privacy statement",
                 ),
@@ -163,6 +164,17 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  openPrivacyPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const PrivacyScreen();
+        },
+      ),
     );
   }
 }

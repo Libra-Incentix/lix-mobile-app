@@ -26,6 +26,7 @@ class NotificationModel {
   });
 
   NotificationModel.fromJson(Map<String, dynamic> json) {
+    bool rStatus = false;
     if (json["id"] is int) {
       id = json["id"];
     }
@@ -46,6 +47,7 @@ class NotificationModel {
     }
     if (json["read_status"] is int) {
       readStatus = json["read_status"];
+      rStatus = json['read_status'] == 1;
     }
     if (json["status"] is int) {
       status = json["status"];
@@ -56,7 +58,7 @@ class NotificationModel {
     if (json["updated_at"] is String) {
       updatedAt = json["updated_at"];
     }
-    read = false;
+    read = rStatus;
   }
 
   Map<String, dynamic> toJson() {

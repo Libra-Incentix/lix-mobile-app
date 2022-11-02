@@ -54,35 +54,40 @@ class _DashboardState extends State<Dashboard> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             activeIcon: Image(
-                image: AssetImage(ImageAssets.tabIcHome),
-                height: 24,
-                width: 24),
+              image: AssetImage(ImageAssets.tabIcHome),
+              height: 24,
+              width: 24,
+            ),
             icon: Image(
-                image: AssetImage(ImageAssets.tabIcHomeInactive),
-                height: 24,
-                width: 24),
+              image: AssetImage(ImageAssets.tabIcHomeInactive),
+              height: 24,
+              width: 24,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             activeIcon: Image(
-                image: AssetImage(ImageAssets.tabIcDeals),
-                height: 24,
-                width: 24),
+              image: AssetImage(ImageAssets.tabIcDeals),
+              height: 24,
+              width: 24,
+            ),
             icon: Image(
                 image: AssetImage(ImageAssets.tabIcDealsInactive),
                 height: 24,
                 width: 24),
-            label: 'Deals',
+            label: 'Marketplace',
           ),
           BottomNavigationBarItem(
             activeIcon: Image(
-                image: AssetImage(ImageAssets.tabIcEarn),
-                height: 24,
-                width: 24),
+              image: AssetImage(ImageAssets.tabIcEarn),
+              height: 24,
+              width: 24,
+            ),
             icon: Image(
-                image: AssetImage(ImageAssets.tabIcEarnInactive),
-                height: 24,
-                width: 24),
+              image: AssetImage(ImageAssets.tabIcEarnInactive),
+              height: 24,
+              width: 24,
+            ),
             label: 'Earn',
           ),
           BottomNavigationBarItem(

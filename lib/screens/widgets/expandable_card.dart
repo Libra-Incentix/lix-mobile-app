@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/views/dashboard.dart';
 import 'package:lix/screens/widgets/button_small.dart';
-import 'package:lix/screens/widgets/submit_button.dart';
 
 class ExpandableCard extends StatefulWidget {
   var title = "";
@@ -72,7 +72,14 @@ class _ExpandableCardState extends State<ExpandableCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: ButtonSmall(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Dashboard(index: 2),
+                      ),
+                    );
+                  },
                   text: "Earn LIX",
                   color: ColorSelect.lightBlack,
                   borderColor: ColorSelect.lightBlack,

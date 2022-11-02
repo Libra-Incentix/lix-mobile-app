@@ -53,6 +53,9 @@ class _SelectFlagState extends State<SelectFlag> {
           cacheHeight: 26,
           cacheWidth: 26,
           gaplessPlayback: true,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.asset('assets/images/no-img.png');
+          },
         ),
         minLeadingWidth: 30,
         trailing: widget.isSelected

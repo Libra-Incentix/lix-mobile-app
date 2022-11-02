@@ -11,13 +11,13 @@ class RecommendedDeals extends StatefulWidget {
   Function? viewAllAction;
   final List<MarketOffer> productsList;
   final bool viewAllOption;
-  RecommendedDeals(
-      {Key? key,
-      required this.onTap,
-      required this.productsList,
-      required this.viewAllOption,
-      this.viewAllAction})
-      : super(key: key);
+  RecommendedDeals({
+    Key? key,
+    required this.onTap,
+    required this.productsList,
+    required this.viewAllOption,
+    this.viewAllAction,
+  }) : super(key: key);
 
   @override
   State<RecommendedDeals> createState() => _RecommendedDealsState();
@@ -98,12 +98,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4.0),
-                            child: Image(
-                              height: 50,
-                              width: 50,
-                              image: provideLogoImage(allOffers[index]),
-                              fit: BoxFit.cover,
-                            ),
+                            child: provideLogoImage(allOffers[index]),
                           ),
                         ),
                         Container(
@@ -151,18 +146,30 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
     );
   }
 
-  ImageProvider provideLogoImage(MarketOffer offer) {
-    // TODO remove this once done.
+  Image provideLogoImage(MarketOffer offer) {
     if (offer.organisation?.avatar != null) {
-      return NetworkImage(
+      return Image.network(
         APIService().imagesPath + (offer.organisation?.avatar ?? ''),
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            'assets/images/no-img.png',
+            height: 50,
+            width: 50,
+            fit: BoxFit.cover,
+          );
+        },
       );
     }
-    return const AssetImage("assets/icons/ic_brand_1.png");
+
+    return Image.asset(
+      "assets/icons/ic_brand_1.png",
+      height: 50,
+      width: 50,
+      fit: BoxFit.cover,
+    );
   }
 
   ImageProvider provideDealImage(MarketOffer offer) {
-    // TODO remove this once done.
     if (offer.offerImage != null && offer.offerImage!.contains('http')) {
       return NetworkImage(
         offer.offerImage!,

@@ -86,52 +86,55 @@ class _EarnScreenState extends State<EarnScreen> {
           style: textStyleBoldBlack(16),
         ),
       ),
-      body: ListView.builder(
-        itemCount: allTasks.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            onTap: () {
-              // first creating task link model...
-              TaskLinkModel taskLinkModel = TaskLinkModel(
-                task: allTasks[index],
-              );
+      body: loading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: allTasks.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () {
+                    // first creating task link model...
+                    TaskLinkModel taskLinkModel = TaskLinkModel(
+                      task: allTasks[index],
+                    );
 
-              // TODO change this later...
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EarnDetailsScreen(
-                    taskLink: taskLinkModel,
-                    offerModel: null,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EarnDetailsScreen(
+                          taskLink: taskLinkModel,
+                          offerModel: null,
+                        ),
+                      ),
+                    );
+                  },
+                  title: Padding(
+                    padding: const EdgeInsets.only(bottom: 3.0),
+                    child: Text(
+                      allTasks[index].title ?? '',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 3.0),
-              child: Text(
-                allTasks[index].title ?? '',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontFamily: 'Inter',
-                ),
-              ),
+                  subtitle: Text(
+                    "${(allTasks[index].coinsPerAction)} LIX",
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color.fromRGBO(210, 114, 84, 1),
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  leading: provideImage(allTasks[index]),
+                );
+              },
             ),
-            subtitle: Text(
-              "${(allTasks[index].coinsPerAction)} LIX",
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color.fromRGBO(210, 114, 84, 1),
-                fontFamily: 'Inter',
-              ),
-            ),
-            leading: provideImage(allTasks[index]),
-          );
-        },
-      ),
     );
   }
 
@@ -139,9 +142,24 @@ class _EarnScreenState extends State<EarnScreen> {
     if (task.avatar == null ||
         task.avatar!.isEmpty ||
         !task.avatar!.contains('http')) {
-      return Image.asset('assets/images/no-img.png');
+      return Image.asset(
+        'assets/images/no-img.png',
+        height: 48,
+        width: 48,
+      );
     }
 
-    return Image.network(task.avatar!);
+    return Image.network(
+      task.avatar!,
+      height: 48,
+      width: 48,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset(
+          'assets/images/no-img.png',
+          height: 48,
+          width: 48,
+        );
+      },
+    );
   }
 }

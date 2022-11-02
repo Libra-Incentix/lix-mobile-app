@@ -4,6 +4,7 @@ import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
+import 'package:lix/models/notification_model.dart';
 import 'package:lix/models/offer_model.dart';
 import 'package:lix/models/task_link.dart';
 import 'package:lix/models/task_model.dart';
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MarketOffer> allOffers = [];
   List<TaskModel> allTasks = [];
   int taskNeeded = 2;
+  int notificationCounts = 0;
 
   showLoading() {
     setState(() {
@@ -56,12 +58,16 @@ class _HomeScreenState extends State<HomeScreen> {
       showLoading();
       List<MarketOffer> offers = await apiService.allRecommendedDeals(user);
       List<TaskModel> tasks = await apiService.getGlobalTasks(user);
+      List<NotificationModel> notifications =
+          await apiService.getAllNotifications(user);
       hideLoading();
       int maxTasks = tasks.length > taskNeeded ? taskNeeded : tasks.length;
       setState(() {
         if (!mounted) return;
         allOffers = offers.getRange(0, 3).toList();
         allTasks = tasks.getRange(0, maxTasks).toList();
+        notificationCounts =
+            notifications.where((element) => !element.read!).toList().length;
       });
     } on CustomException catch (e) {
       hideLoading();
@@ -98,10 +104,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-            icon: Image.asset(
-              ImageAssets.notificationBell,
-              height: 20,
-              width: 20,
+            icon: Stack(
+              children: [
+                Image.asset(
+                  ImageAssets.notificationBell,
+                  height: 25,
+                  width: 25,
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: notificationCounts > 0
+                      ? Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            notificationCounts.toString(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                ),
+              ],
             ),
           ),
         ],
@@ -122,6 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : ListView(
               children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Text(
+                    'Hi ${user.name ?? ""}, Earn & redeem LIX',
+                    textScaleFactor: 1.0,
+                    style: textStyleMediumBlack(22),
+                  ),
+                ),
                 // Top container with qr code image and scan button
                 Container(
                   width: MediaQuery.of(context).size.width,
@@ -230,11 +267,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EarnDetailsScreen(
-                          offerModel: offerModel,
-                          taskLink: null,
+                        builder: (context) => DealDetailsScreen(
+                          marketOffer: offer,
                         ),
                       ),
+                      // MaterialPageRoute(
+                      //   builder: (context) => EarnDetailsScreen(
+                      //     offerModel: offerModel,
+                      //     taskLink: null,
+                      //   ),
+                      // ),
                     );
                   },
                   productsList: allOffers,

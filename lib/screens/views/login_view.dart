@@ -1,6 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
+import 'dart:developer' as devtools show log, inspect;
 
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
@@ -105,10 +105,32 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> loginWithGoogle() async {
-    GoogleSignInAccount? user = await _googleSignIn.signIn();
-    if (user?.email != null) {
-      _emailController.text = user?.email ?? '';
+    try {
+      showLoading();
+      GoogleSignInAccount? user = await _googleSignIn.signIn();
+
+      if (user != null) {
+        GoogleSignInAuthentication googleSignInAuthentication =
+            await user.authentication;
+
+        if (googleSignInAuthentication.accessToken != null) {
+          dynamic response = await apiServices.socialLogin(
+            googleSignInAuthentication.accessToken!,
+          );
+          devtools.inspect(response);
+        }
+      }
+      hideLoading();
+    } on CustomException catch (e) {
+      hideLoading();
+      devtools.log('$e');
+    } catch (e) {
+      devtools.log('$e');
+      hideLoading();
     }
+    // if (user?.email != null) {
+    //   _emailController.text = user?.email ?? '';
+    // }
   }
 
   @override
@@ -317,7 +339,7 @@ class _LoginViewState extends State<LoginView> {
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(e.message),
       );
-      log('$e');
+      devtools.log('$e');
     } catch (e) {
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -325,7 +347,7 @@ class _LoginViewState extends State<LoginView> {
           helperService.defaultErrorMessage,
         ),
       );
-      log('$e');
+      devtools.log('$e');
     }
   }
 

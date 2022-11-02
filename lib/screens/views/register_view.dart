@@ -299,6 +299,11 @@ class _RegisterViewState extends State<RegisterView> {
                                             fit: BoxFit.cover,
                                             cacheHeight: 24,
                                             cacheWidth: 24,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                  'assets/images/no-img.png');
+                                            },
                                           ),
                                           Text(
                                             selectedCountry!.dialCode!,

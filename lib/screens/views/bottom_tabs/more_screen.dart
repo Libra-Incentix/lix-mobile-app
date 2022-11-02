@@ -191,7 +191,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           text: "My Profile",
                         ),
                         SettingsItem(
-                          onTap: redirectToHome,
+                          onTap: redirectToMarketplace,
                           icon: "assets/icons/ic_market.png",
                           text: "Marketplace",
                         ),
@@ -286,12 +286,12 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
-  void redirectToHome() {
+  void redirectToMarketplace() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) {
           return const Dashboard(
-            index: 0,
+            index: 1,
           );
         },
       ),

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:lix/models/category_model.dart';
 import 'package:lix/models/country_model.dart';
 import 'package:lix/models/country_phone_model.dart';
+import 'package:lix/models/coupon_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/market_offer_model.dart';
 import 'package:lix/models/notification_model.dart';
@@ -16,6 +17,8 @@ class APIService {
   final String imagesPath = "http://app2.libraincentix.com/images/";
   final String dealImagesPath = "http://app2.libraincentix.com/";
   final String termsPath = "https://app.libraincentix.com/terms/service";
+  final String privacyPath = 'https://app2.libraincentix.com/privacy';
+
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
     "Content-Type": "application/json",
@@ -52,6 +55,37 @@ class APIService {
         if (body['success'] != null && body['message'] != null) {
           throw CustomException(
             code: 'LoginFailed',
+            message: body['message'],
+          );
+        }
+        throw Exception('Error');
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'LoginFailed',
+          message: body['message'],
+        );
+      }
+      throw Exception('Error');
+    }
+  }
+
+  Future socialLogin(String token) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}social/login/service=$token"),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['success']) {
+        return body;
+      } else {
+        if (body['success'] != null && body['message'] != null) {
+          throw CustomException(
+            code: 'SocialLoginFailed',
             message: body['message'],
           );
         }
@@ -609,6 +643,76 @@ class APIService {
     }
   }
 
+  /// ``type`` will only be `email`, `push` or `sms`
+  /// and action will either be 0 or 1. 0 for disable and 1 for enable.
+  Future enableDisableNotifications(User user, String type, int action) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}notifications/enable/disable"),
+      body: {
+        "notification_type": type,
+        "notification_action": action.toString(),
+      },
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return body['success'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'NotificationReadMarkFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future markNotificationAsRead(User user, int notificationId) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}update/notification/status/$notificationId"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['data'] != null) {
+        return body['success'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'NotificationReadMarkFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
   Future<List<NotificationModel>> getAllNotifications(User user) async {
     var response = await http.get(
       Uri.parse("${apiURL}get/user/notifications"),
@@ -883,6 +987,40 @@ class APIService {
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'DeleteFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<List<CouponModel>> getMyCoupons(User user) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}get/user/coupons"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] && body['data'] != null) {
+        return (body['data']['data'] as List<dynamic>)
+            .map((e) => CouponModel.fromJson(e))
+            .toList();
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'MyCouponsRetrievalFailed',
           message: body['message'],
         );
       }

@@ -73,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TermsScreen(),
+                  builder: (context) => const TermsScreen(),
                 ),
               );
             },
@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrivacySettingsScreen(),
+                  builder: (context) => const PrivacySettingsScreen(),
                 ),
               );
             },

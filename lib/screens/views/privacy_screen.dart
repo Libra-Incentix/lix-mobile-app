@@ -4,14 +4,14 @@ import 'package:lix/services/api.dart';
 // ignore: depend_on_referenced_packages
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TermsScreen extends StatefulWidget {
-  const TermsScreen({Key? key}) : super(key: key);
+class PrivacyScreen extends StatefulWidget {
+  const PrivacyScreen({Key? key}) : super(key: key);
 
   @override
-  TermsScreenState createState() => TermsScreenState();
+  PrivacyScreenState createState() => PrivacyScreenState();
 }
 
-class TermsScreenState extends State<TermsScreen> {
+class PrivacyScreenState extends State<PrivacyScreen> {
   @override
   void initState() {
     super.initState();
@@ -26,19 +26,22 @@ class TermsScreenState extends State<TermsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "Terms & conditions",
+          "Privacy Policy",
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-              fontFamily: 'Inter'),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+            fontFamily: 'Inter',
+          ),
         ),
         leading: Builder(
           builder: (BuildContext context) {
             return GestureDetector(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-                child: const Image(image: AssetImage(ImageAssets.arrowBack)),
+                child: const Image(
+                  image: AssetImage(ImageAssets.arrowBack),
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -48,7 +51,7 @@ class TermsScreenState extends State<TermsScreen> {
         ),
       ),
       body: WebView(
-        initialUrl: APIService().termsPath,
+        initialUrl: APIService().privacyPath,
       ),
     );
   }

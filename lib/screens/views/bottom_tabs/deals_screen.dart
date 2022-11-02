@@ -163,7 +163,7 @@ class _DealsScreenState extends State<DealsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "Deals",
+          "Marketplace",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -179,38 +179,38 @@ class _DealsScreenState extends State<DealsScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 6, 0, 18),
-                    height: 40.0,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: allCategories.length,
-                      itemBuilder: (context, index) {
-                        return CategoryItem(
-                          category: allCategories[index],
-                          onTap: (Category category) {
-                            setState(() {
-                              for (Category element in allCategories) {
-                                element.selected = false;
-                              }
-                              Category c = category;
-                              c.selected = true;
-                              allCategories[index] = c;
-                              filterCategories(c.id);
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                  // Container(
+                  //   margin: const EdgeInsets.fromLTRB(16, 6, 0, 18),
+                  //   height: 40.0,
+                  //   child: ListView.builder(
+                  //     shrinkWrap: true,
+                  //     scrollDirection: Axis.horizontal,
+                  //     itemCount: allCategories.length,
+                  //     itemBuilder: (context, index) {
+                  //       return CategoryItem(
+                  //         category: allCategories[index],
+                  //         onTap: (Category category) {
+                  //           setState(() {
+                  //             for (Category element in allCategories) {
+                  //               element.selected = false;
+                  //             }
+                  //             Category c = category;
+                  //             c.selected = true;
+                  //             allCategories[index] = c;
+                  //             filterCategories(c.id);
+                  //           });
+                  //         },
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'All Deals',
+                          'Marketplace',
                           style: textStyleMediumBlack(24),
                         ),
                         GestureDetector(
@@ -235,14 +235,14 @@ class _DealsScreenState extends State<DealsScreen> {
                       ],
                     ),
                   ),
-                  // TODO this is commented because of coming from changes in RecommendedDeals page.
                   RecommendedDeals(
                     onTap: (MarketOffer offer) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              DealDetailsScreen(marketOffer: offer),
+                          builder: (context) => DealDetailsScreen(
+                            marketOffer: offer,
+                          ),
                         ),
                       );
                     },
