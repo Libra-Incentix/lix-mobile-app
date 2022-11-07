@@ -282,7 +282,7 @@ class _MyProfileViewState extends State<MyProfileView> {
                     const CircleAvatar(
                       radius: 50.0,
                       backgroundImage: AssetImage(
-                        'assets/images/no-img.png',
+                        'assets/images/avatar.png',
                       ),
                       backgroundColor: Colors.transparent,
                     ),

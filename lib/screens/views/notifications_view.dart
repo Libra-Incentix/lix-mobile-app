@@ -152,16 +152,16 @@ class _NotificationsViewState extends State<NotificationsView> {
                       style: textStyleBoldBlack(15),
                     ),
                   ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      _notifications[index].description ?? '',
-                      style: customFontRegular(
-                        13,
-                        ColorSelect.greyDark,
-                      ),
-                    ),
-                  ),
+                  // subtitle: Padding(
+                  //   padding: const EdgeInsets.only(bottom: 10),
+                  //   child: Text(
+                  //     _notifications[index].description ?? '',
+                  //     style: customFontRegular(
+                  //       13,
+                  //       ColorSelect.greyDark,
+                  //     ),
+                  //   ),
+                  // ),
                 );
               },
             ),

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -184,9 +185,20 @@ class _MyCouponsState extends State<MyCouponsView> {
                           height: 36,
                           width: 36,
                           decoration: BoxDecoration(
-                            image: const DecorationImage(
+                            image: DecorationImage(
                               fit: BoxFit.cover,
-                              image: AssetImage('assets/images/no-img.png'),
+                              image: Image.network(
+                                couponsActive[index].market!['offer_image'],
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  debugPrint("onError B");
+
+                                  return const Image(
+                                    image:
+                                        AssetImage('assets/images/no-img.png'),
+                                  );
+                                },
+                              ).image,
                             ),
                             borderRadius: const BorderRadius.all(
                               Radius.circular(8.0),

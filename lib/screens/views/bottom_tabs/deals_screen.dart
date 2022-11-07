@@ -23,57 +23,8 @@ class DealsScreen extends StatefulWidget {
 }
 
 class _DealsScreenState extends State<DealsScreen> {
-  var dealsList = [
-    {
-      "name": "Watchbox",
-      "picture": "assets/images/ic_home_1.png",
-      "logo": "assets/icons/ic_brand_1.png",
-      "desc": "Superior Watchmaking Service"
-    },
-    {
-      "name": "Bloomingdales",
-      "picture": "assets/images/ic_home_2.png",
-      "logo": "assets/icons/ic_brand_2.png",
-      "desc": "Get the latest offers of Bloomingdales"
-    },
-    {
-      "name": "Mcdonald's",
-      "picture": "assets/images/ic_home_3.png",
-      "logo": "assets/icons/ic_brand_3.png",
-      "desc": "Best choice for quick snacks"
-    },
-    {
-      "name": "Atlantis hotel",
-      "picture": "assets/images/ic_home_4.png",
-      "logo": "assets/icons/ic_brand_4.png",
-      "desc": "Luxury stay in Dubai"
-    },
-    {
-      "name": "Watchbox",
-      "picture": "assets/images/ic_home_1.png",
-      "logo": "assets/icons/ic_brand_1.png",
-      "desc": "Superior Watchmaking Service"
-    },
-    {
-      "name": "Bloomingdales",
-      "picture": "assets/images/ic_home_2.png",
-      "logo": "assets/icons/ic_brand_2.png",
-      "desc": "Get the latest offers of Bloomingdales"
-    },
-    {
-      "name": "Mcdonald's",
-      "picture": "assets/images/ic_home_3.png",
-      "logo": "assets/icons/ic_brand_3.png",
-      "desc": "Best choice for quick snacks"
-    },
-    {
-      "name": "Atlantis hotel",
-      "picture": "assets/images/ic_home_4.png",
-      "logo": "assets/icons/ic_brand_4.png",
-      "desc": "Luxury stay in Dubai"
-    },
-  ];
   bool loading = false;
+  bool loadMore = false;
   APIService apiService = locator<APIService>();
   HelperService helperService = locator<HelperService>();
   late User user = locator<HelperService>().getCurrentUser()!;
@@ -82,11 +33,15 @@ class _DealsScreenState extends State<DealsScreen> {
   List<MarketOffer> initialOffers = [];
   List<Category> allCategories = [];
   String sortingOrder = 'asc';
+  int currentPage = 1;
+  int lastPage = 0;
+  late ScrollController controller;
 
   showLoading() {
     setState(() {
       if (!mounted) return;
-      loading = true;
+      loading = currentPage == 1 ? true : false;
+      loadMore = true;
     });
   }
 
@@ -94,6 +49,7 @@ class _DealsScreenState extends State<DealsScreen> {
     setState(() {
       if (!mounted) return;
       loading = false;
+      loadMore = false;
     });
   }
 
@@ -111,13 +67,16 @@ class _DealsScreenState extends State<DealsScreen> {
       });
 
       // fetching all market offers...
-      List<MarketOffer> offers = await apiService.allMarketOffers(user);
-
+      final Map<dynamic, dynamic> responseMap =
+          await apiService.allMarketOffers(user, currentPage);
+      List<MarketOffer> offers = responseMap['allOffers'];
       // setting all the market offers...
       setState(() {
         if (!mounted) return;
-        allOffers = offers;
-        initialOffers = offers;
+        allOffers = [...allOffers, ...offers];
+        initialOffers = [...allOffers, ...offers];
+        lastPage = responseMap['last_page'];
+        currentPage = responseMap['current_page'];
       });
       hideLoading();
     } on CustomException catch (e) {
@@ -134,13 +93,26 @@ class _DealsScreenState extends State<DealsScreen> {
 
   @override
   void initState() {
+    controller = ScrollController()..addListener(handleScrolling);
     initialize();
     super.initState();
+  }
+
+  void handleScrolling() {
+    if (controller.offset >= controller.position.maxScrollExtent) {
+      if (currentPage != lastPage) {
+        setState(() {
+          currentPage = currentPage + 1;
+        });
+        initialize();
+      }
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    controller.removeListener(handleScrolling);
   }
 
   List<MarketOffer> filterRequest(categoryId) {
@@ -178,33 +150,9 @@ class _DealsScreenState extends State<DealsScreen> {
               child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(
+              controller: controller,
               child: Column(
                 children: [
-                  // Container(
-                  //   margin: const EdgeInsets.fromLTRB(16, 6, 0, 18),
-                  //   height: 40.0,
-                  //   child: ListView.builder(
-                  //     shrinkWrap: true,
-                  //     scrollDirection: Axis.horizontal,
-                  //     itemCount: allCategories.length,
-                  //     itemBuilder: (context, index) {
-                  //       return CategoryItem(
-                  //         category: allCategories[index],
-                  //         onTap: (Category category) {
-                  //           setState(() {
-                  //             for (Category element in allCategories) {
-                  //               element.selected = false;
-                  //             }
-                  //             Category c = category;
-                  //             c.selected = true;
-                  //             allCategories[index] = c;
-                  //             filterCategories(c.id);
-                  //           });
-                  //         },
-                  //       );
-                  //     },
-                  //   ),
-                  // ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: Row(
@@ -252,6 +200,8 @@ class _DealsScreenState extends State<DealsScreen> {
                     productsList: allOffers,
                     viewAllOption: false,
                   ),
+                  if (loadMore)
+                    (const CircularProgressIndicator(color: Colors.blue)),
                 ],
               ),
             ),

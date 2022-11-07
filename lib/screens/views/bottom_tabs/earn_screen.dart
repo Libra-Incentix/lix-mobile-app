@@ -9,6 +9,7 @@ import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
+import 'package:loadmore/loadmore.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({Key? key}) : super(key: key);
@@ -24,6 +25,8 @@ class _EarnScreenState extends State<EarnScreen> {
   SnackBarService snackBarService = locator<SnackBarService>();
   List<TaskModel> allTasks = [];
   bool loading = false;
+  late ScrollController controller;
+  int count = 15;
 
   showLoading() {
     if (!mounted) return;
@@ -42,12 +45,23 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   void initState() {
     initialize();
+    controller = ScrollController()..addListener(handleScrolling);
     super.initState();
+  }
+
+  void handleScrolling() {
+    if (controller.offset >= controller.position.maxScrollExtent) {
+      print("handle scrolling end");
+      setState(() {
+        count += 10;
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    controller.removeListener(handleScrolling);
   }
 
   initialize() async {
@@ -91,6 +105,7 @@ class _EarnScreenState extends State<EarnScreen> {
               child: CircularProgressIndicator(),
             )
           : ListView.builder(
+              controller: controller,
               itemCount: allTasks.length,
               itemBuilder: (context, index) {
                 return ListTile(

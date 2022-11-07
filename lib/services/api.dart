@@ -24,7 +24,7 @@ class APIService {
     "Content-Type": "application/json",
   };
   final Map<String, String> headers = {
-    "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI",
+    "Developer-Token": "2|UEY39tNcLCJxeRwr5iOqjVsmmp4e9Ig1KDEV2qjz",
     "accept": "application/json",
   };
 
@@ -294,9 +294,9 @@ class APIService {
     }
   }
 
-  Future<List<MarketOffer>> allMarketOffers(User user) async {
+  Future<Map> allMarketOffers(User user, int page) async {
     var response = await http.get(
-      Uri.parse("${apiURL}markets"),
+      Uri.parse("${apiURL}markets?page=$page"),
       headers: {
         ...headers,
         "Authorization": "Bearer ${user.userToken}",
@@ -306,9 +306,15 @@ class APIService {
     if (response.statusCode == 200) {
       var body = jsonDecode(response.body);
       if (body['success'] && body['data'] != null) {
-        return (body['data']['data'] as List<dynamic>)
-            .map((element) => MarketOffer.fromJson(element))
-            .toList();
+        Map<String, dynamic> responseMap = {
+          "current_page": body['data']['meta']['current_page'],
+          "last_page": body['data']['meta']['last_page'],
+          "allOffers": (body['data']['data'] as List<dynamic>)
+              .map((element) => MarketOffer.fromJson(element))
+              .toList()
+        };
+
+        return responseMap;
       } else {
         throw CustomException(
           code: 'Error',
@@ -474,7 +480,7 @@ class APIService {
     }
 
     Map<String, String> headers = {
-      "Developer-Token": "37|UiJrhloD61M6TApAkDeHaZ46UNX1XA2qWeZ2LxPI",
+      "Developer-Token": "1|OSuvEkhlsRURsCdTDPxshynSvmiMgxeY62TAlC17",
       "Authorization": "Bearer ${user.userToken}",
     };
     request.headers.addAll(headers);

@@ -13,6 +13,7 @@ import 'package:lix/models/coupon_model.dart';
 import 'package:lix/models/custom_exception.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:lix/services/api.dart';
@@ -37,9 +38,15 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
   late User user = locator<HelperService>().getCurrentUser()!;
   HelperService helperService = locator<HelperService>();
   APIService apiService = locator<APIService>();
-
+  final TextEditingController _confirmInputController = TextEditingController();
   bool showQrCode = false;
   bool showBarCode = false;
+
+  onTextChange(String value) {
+    setState(() {
+      _confirmInputController.text = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +165,9 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                             });
                           },
                           text: "Show QR Code",
-                          color: ColorSelect.lightBlack,
+                          color: showBarCode
+                              ? ColorSelect.lightBlack
+                              : ColorSelect.appThemeGrey,
                         ),
                         const SizedBox(width: 10),
                         SubmitButton(
@@ -169,12 +178,40 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                             });
                           },
                           text: "Show Barcode",
-                          color: ColorSelect.lightBlack,
+                          color: showBarCode
+                              ? ColorSelect.lightBlack
+                              : ColorSelect.appThemeGrey,
                         ),
                       ],
                     ),
                   ),
                   showQrOrBarcodeImage(),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: inputField(
+                            "Enter Coupon code",
+                            _confirmInputController,
+                            false,
+                            context,
+                            onTextChange,
+                            TextInputType.name,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                          child: SubmitButton(
+                              onTap: () {},
+                              text: "Verify",
+                              color: ColorSelect.lightBlack),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Container(
                     color: ColorSelect.appThemeGrey,
                     margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),

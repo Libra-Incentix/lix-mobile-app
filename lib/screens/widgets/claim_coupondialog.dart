@@ -5,6 +5,7 @@ import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/models/buy_offer_success.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/widgets/input_field.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:flutter/services.dart';
 
@@ -25,7 +26,7 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
   late BuyOfferSuccess buyOfferSuccess = widget.buyOfferSuccess;
   bool showQrCode = false;
   bool showBarCode = false;
-
+  final TextEditingController _confirmInputController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,12 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  onTextChange(String value) {
+    setState(() {
+      _confirmInputController.text = value;
+    });
   }
 
   @override
@@ -181,6 +188,32 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                       ],
                     ),
                   ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: inputField(
+                            "Enter Coupon code",
+                            _confirmInputController,
+                            false,
+                            context,
+                            onTextChange,
+                            TextInputType.name,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                          child: SubmitButton(
+                              onTap: () {},
+                              text: "Verify",
+                              color: ColorSelect.lightBlack),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Container(
                     color: ColorSelect.appThemeGrey,
                     margin: const EdgeInsets.all(24).subtract(

@@ -25,6 +25,9 @@ class RecommendedDeals extends StatefulWidget {
 
 class _RecommendedDealsState extends State<RecommendedDeals> {
   late List<MarketOffer> allOffers = widget.productsList;
+  late ScrollController controller;
+  int count = 15;
+
   double getTopMargin() {
     if (widget.viewAllOption) {
       return 16;
@@ -41,6 +44,16 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
         allOffers = widget.productsList;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
