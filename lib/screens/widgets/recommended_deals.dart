@@ -82,65 +82,74 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                   onTap: () {
                     widget.onTap(allOffers[index]);
                   },
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 0, 16),
-                          height: 160,
-                          alignment: Alignment.bottomLeft,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: provideDealImage(allOffers[index]),
-                              fit: BoxFit.fill,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 0, 16),
+                        height: 160,
+                        alignment: Alignment.bottomLeft,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: provideDealImage(
+                              allOffers[index],
                             ),
-                            borderRadius: BorderRadius.circular(4),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 4,
+                                color: Colors.black.withOpacity(.2),
+                                spreadRadius: 2,
+                                offset: const Offset(2, 4),
+                              ),
+                            ],
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4.0),
                             child: provideLogoImage(allOffers[index]),
                           ),
                         ),
-                        Container(
-                          height: 70,
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          decoration: const BoxDecoration(
-                            color: ColorSelect.appThemeGrey,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(4),
-                              bottomRight: Radius.circular(4),
-                            ),
-                          ),
-                          width: MediaQuery.of(context).size.width,
-                          padding: const EdgeInsets.fromLTRB(16, 12, 0, 12),
-                          alignment: Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                (allOffers[index]
-                                        .organisation
-                                        ?.name
-                                        .toString() ??
-                                    ''),
-                                style: textStyleBoldBlack(16),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                allOffers[index].benefit ?? '',
-                                overflow: TextOverflow.ellipsis,
-                                style: textStyleRegularBlack(14),
-                              ),
-                            ],
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                        decoration: const BoxDecoration(
+                          color: ColorSelect.appThemeGrey,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
                           ),
                         ),
-                      ],
-                    ),
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.fromLTRB(16, 12, 0, 12),
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              (allOffers[index].organisation?.name.toString() ??
+                                  ''),
+                              style: textStyleBoldBlack(16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              allOffers[index].benefit ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: textStyleRegularBlack(14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

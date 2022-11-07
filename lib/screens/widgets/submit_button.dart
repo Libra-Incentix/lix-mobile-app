@@ -24,34 +24,37 @@ class _SubmitButtonState extends State<SubmitButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
-          widget.onTap();
-        },
-        child: Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-          decoration: BoxDecoration(
-            color: widget.color,
-            borderRadius: BorderRadius.circular(
-              4,
-            ),
-            border: Border.all(
-              color: Colors.white,
-              width: 1,
-            ),
+      onTap: () {
+        widget.onTap();
+      },
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(
+            4,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(widget.text,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  )),
-            ],
+          border: Border.all(
+            color: Colors.white,
+            width: 1,
           ),
-        ));
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontFamily: "Inter",
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

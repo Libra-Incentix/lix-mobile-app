@@ -188,7 +188,7 @@ class _TransactionDetailsState extends State<TransactionDetails> {
       value = '${transaction.amount} ${transaction.currency}';
     }
 
-    if (transaction.type != null && transaction.type != 'earning') {
+    if (transaction.type != null && transaction.type == 'buy offer') {
       value = '-$value';
     }
     return value;

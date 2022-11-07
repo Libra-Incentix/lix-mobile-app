@@ -282,19 +282,19 @@ class _MyProfileViewState extends State<MyProfileView> {
                     const CircleAvatar(
                       radius: 50.0,
                       backgroundImage: AssetImage(
-                        'assets/icons/profile_user.png',
+                        'assets/images/no-img.png',
                       ),
                       backgroundColor: Colors.transparent,
                     ),
                     const SizedBox(height: 10),
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {},
-                      child: Text(
-                        "Edit",
-                        style: textStyleViewAll(14),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   behavior: HitTestBehavior.translucent,
+                    //   onTap: () {},
+                    //   child: Text(
+                    //     "Edit",
+                    //     style: textStyleViewAll(14),
+                    //   ),
+                    // ),
                     const SizedBox(height: 24),
                     // gender field...
                     genderField(),

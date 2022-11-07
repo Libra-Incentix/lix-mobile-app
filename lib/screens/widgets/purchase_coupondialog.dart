@@ -8,10 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
 import 'package:lix/models/coupon_model.dart';
+import 'package:lix/models/custom_exception.dart';
+import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/helper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -29,6 +34,10 @@ class PurchaseCouponDialog extends StatefulWidget {
 
 class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
   late CouponModel coupon = widget.coupon;
+  late User user = locator<HelperService>().getCurrentUser()!;
+  HelperService helperService = locator<HelperService>();
+  APIService apiService = locator<APIService>();
+
   bool showQrCode = false;
   bool showBarCode = false;
 
@@ -44,7 +53,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
 
   Widget dialogContent(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 0.0, right: 0.0),
+      margin: const EdgeInsets.symmetric(horizontal: 0.0),
       child: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
@@ -126,7 +135,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                                 ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -194,7 +203,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                                     'Share this discount offer with your friends and earn',
                               ),
                               TextSpan(
-                                text: ' 10 LIX',
+                                text: ' 5 LIX',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: ColorSelect.appThemeOrange,
@@ -204,11 +213,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        SubmitButton(
-                          onTap: shareCouponCode,
-                          text: "Share Now",
-                          color: ColorSelect.lightBlack,
-                        ),
+                        showShareNowButton(),
                       ],
                     ),
                   ),
@@ -232,6 +237,17 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget showShareNowButton() {
+    if (coupon.isUsed == 1 && coupon.isActive == 0) {
+      return Container();
+    }
+    return SubmitButton(
+      onTap: shareCouponCode,
+      text: "Share Now",
+      color: ColorSelect.lightBlack,
     );
   }
 
@@ -263,36 +279,92 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
     return false;
   }
 
-  shareCouponCode() async {
-    if (doesSharingCodeAvailable()) {
-      Timer(
-        const Duration(seconds: 1),
-        () async {
-          try {
-            Uint8List byteData;
-            byteData = const Base64Decoder().convert(coupon.couponQRCode ?? '');
-            Uint8List pngBytes = byteData.buffer.asUint8List();
-
-            final tempDir = await getTemporaryDirectory();
-            final file = await File('${tempDir.path}/image.png').create();
-            await file.writeAsBytes(pngBytes);
-
-            await Share.shareFiles(
-              ['${tempDir.path}/image.png'],
-              subject: 'Coupon Claimed',
-              text:
-                  'Hey I claimed a coupon on LIV, here is the code: "${coupon.coupon}"',
-            );
-          } catch (e) {
-            devtools.log(e.toString());
-          }
-        },
-      );
+  String sharingCode() {
+    if (showQrCode && coupon.couponQRCode != null) {
+      return coupon.couponQRCode!;
     }
 
-    await Share.share(
-      subject: 'Coupon Claimed',
-      'Hey I claimed a coupon on LIV, here is the code: "${coupon.coupon}"',
+    if (showBarCode && coupon.couponBarcode != null) {
+      return coupon.couponBarcode!;
+    }
+
+    return '';
+  }
+
+  shareCouponCode() async {
+    // if (doesSharingCodeAvailable()) {
+    //   Timer(
+    //     const Duration(seconds: 1),
+    //     () async {
+    //       try {
+    //         Uint8List byteData;
+    //         byteData = const Base64Decoder().convert(
+    //           sharingCode().isNotEmpty ? sharingCode() : '',
+    //         );
+    //         Uint8List pngBytes = byteData.buffer.asUint8List();
+
+    //         final tempDir = await getTemporaryDirectory();
+    //         final file = await File('${tempDir.path}/image.png').create();
+    //         await file.writeAsBytes(pngBytes);
+
+    //         ShareResult result = await Share.shareFilesWithResult(
+    //           ['${tempDir.path}/image.png'],
+    //           subject: shareSubject(),
+    //           text: shareDescription(),
+    //         );
+
+    //         if (result.status == ShareResultStatus.success) {
+    //           creditSocialShareBonus();
+    //         }
+    //         return;
+    //       } catch (e) {
+    //         devtools.log(e.toString());
+    //       }
+    //     },
+    //   );
+    // } else {
+    ShareResult result = await Share.shareWithResult(
+      subject: shareSubject(),
+      shareDescription(),
     );
+
+    if (result.status == ShareResultStatus.success) {
+      creditSocialShareBonus();
+    }
+    // }
+  }
+
+  creditSocialShareBonus() async {
+    try {
+      // ok user shared coupon successfully.
+      // credit 5 lix in user's account.
+      String response = await apiService.creditSocialShareBonus(user);
+      if (response.runtimeType == String) {
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context, {
+          "response": response,
+          "type": "success",
+        });
+      }
+    } on CustomException catch (e) {
+      devtools.log('$e');
+      Navigator.pop(context, {
+        "response": e.message,
+        "type": "error",
+      });
+    } catch (e) {
+      devtools.log('$e');
+    }
+  }
+
+  String shareSubject() {
+    return coupon.description ?? 'Coupon Claimed';
+  }
+
+  String shareDescription() {
+    if (coupon.market != null) {
+      return coupon.market!['offer_link'] ?? '';
+    }
+    return '';
   }
 }

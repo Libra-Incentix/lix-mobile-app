@@ -50,6 +50,16 @@ class _NotificationsViewState extends State<NotificationsView> {
       if (notifications.isNotEmpty) {
         setState(() {
           _notifications = notifications;
+          _notifications.sort((a, b) {
+            if (a.createdAt != null && b.createdAt != null) {
+              DateTime aDate = DateTime.parse(a.createdAt!);
+              DateTime bDate = DateTime.parse(b.createdAt!);
+
+              return bDate.compareTo(aDate);
+            }
+
+            return 1;
+          });
         });
       }
       hideLoading();

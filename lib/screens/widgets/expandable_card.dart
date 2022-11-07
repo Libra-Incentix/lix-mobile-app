@@ -60,20 +60,20 @@ class _ExpandableCardState extends State<ExpandableCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: ButtonSmall(
-                  onTap: () {},
-                  text: "Change wallet",
-                  color: ColorSelect.appThemeGrey,
-                  borderColor: ColorSelect.lightBlack,
-                  textStyle: textStyleBoldBlack(13),
-                ),
-              ),
-              const SizedBox(width: 8),
+              // Expanded(
+              //   child: ButtonSmall(
+              //     onTap: () {},
+              //     text: "Change wallet",
+              //     color: ColorSelect.appThemeGrey,
+              //     borderColor: ColorSelect.lightBlack,
+              //     textStyle: textStyleBoldBlack(13),
+              //   ),
+              // ),
+              // const SizedBox(width: 8),
               Expanded(
                 child: ButtonSmall(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const Dashboard(index: 2),

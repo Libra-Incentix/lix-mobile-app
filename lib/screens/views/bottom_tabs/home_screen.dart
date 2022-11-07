@@ -295,7 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     TaskLinkModel taskLinkModel = TaskLinkModel(
                       task: task,
                     );
-                    // TODO change this later...
                     Navigator.push(
                       context,
                       MaterialPageRoute(

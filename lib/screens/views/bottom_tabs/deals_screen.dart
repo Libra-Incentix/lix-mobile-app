@@ -101,12 +101,12 @@ class _DealsScreenState extends State<DealsScreen> {
     try {
       showLoading();
       // fetching all categories...
-      List<Category> categories = await apiService.getAllCategories(user);
+      // List<Category> categories = await apiService.getAllCategories(user);
 
       // first setting all the categories
       setState(() {
         if (!mounted) return;
-        allCategories = categories;
+        // allCategories = categories;
         // allCategories[0].selected = true;
       });
 

@@ -32,6 +32,24 @@ class CouponModel {
   });
 
   factory CouponModel.fromJson(Map<String, dynamic> json) {
+    int iA = 0;
+    int iU = 0;
+
+    if (json['is_active'] != null) {
+      if (json['is_active'].runtimeType == bool) {
+        iA = json['is_active'] ? 1 : 0;
+      } else if (json['is_active'].runtimeType == int) {
+        iA = json['is_active'];
+      }
+    }
+
+    if (json['is_used'] != null) {
+      if (json['is_used'].runtimeType == bool) {
+        iU = json['is_used'] ? 1 : 0;
+      } else if (json['is_used'].runtimeType == int) {
+        iU = json['is_used'];
+      }
+    }
     return CouponModel(
       id: json['id'],
       user: json['redeemer_user_details'],
@@ -40,8 +58,8 @@ class CouponModel {
       description: json['description'],
       couponQRCode: json['coupon_qrcode'],
       couponBarcode: json['coupon_barcode'],
-      isActive: json['is_active'],
-      isUsed: json['is_used'],
+      isActive: iA,
+      isUsed: iU,
       status: json['status'],
       usedDate: json['used_date'],
       cancelledAt: json['cancelled_at'],

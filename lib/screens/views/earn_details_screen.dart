@@ -3,6 +3,7 @@ import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:intl/intl.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
@@ -15,9 +16,11 @@ import 'package:lix/models/task_model.dart';
 import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
+import 'package:lix/screens/views/dashboard.dart';
 import 'package:lix/screens/widgets/ExpandableItem.dart';
 import 'package:lix/screens/widgets/claim_coupondialog.dart';
 import 'package:lix/screens/widgets/claim_task_dialog.dart';
+import 'package:lix/screens/widgets/expandable_card.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:lix/screens/widgets/task_proof_dialog.dart';
 import 'package:lix/services/api.dart';
@@ -210,10 +213,21 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                             ),
                           ),
                         ),
-                        if (!isTask)
-                          Positioned(
-                            left: 10.0,
-                            bottom: 10.0,
+                        Positioned(
+                          left: 10.0,
+                          bottom: 10.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 4,
+                                  color: Colors.black.withOpacity(.2),
+                                  spreadRadius: 2,
+                                  offset: const Offset(2, 4),
+                                ),
+                              ],
+                            ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(4.0),
                               child: Image(
@@ -224,6 +238,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                               ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -239,6 +254,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
                         const SizedBox(height: 8),
                         taskDescription(),
                         const SizedBox(height: 24),
+                        showCurrentBalanceIfAny(),
                         taskRewardOrFee(),
                         const SizedBox(height: 32),
                         ExpandableItem(
@@ -272,6 +288,12 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   }
 
   ImageProvider logoImage() {
+    if (isTask) {
+      if (task!.avatar != null) {
+        return NetworkImage(task!.avatar!);
+      }
+      return const AssetImage("assets/images/ic_home_1.png");
+    }
     return getOfferAvatar(offerModel);
   }
 
@@ -360,8 +382,9 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       context: context,
       builder: (context) {
         return TaskProofDialog(
-            onSubmit: onSubmitProof,
-            proofType: taskLinkModel!.task!.proofType ?? 'text');
+          onSubmit: onSubmitProof,
+          proofType: taskLinkModel!.task!.proofType ?? 'text',
+        );
       },
     );
   }
@@ -369,7 +392,6 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
   Future claimOffer() async {
     try {
       showLoading();
-      print(offerModel!.id!.toString());
       Map<String, dynamic> response = await apiService.buyOffer(
         user,
         offerModel!.id!.toString(),
@@ -381,17 +403,23 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
           response['data'],
         );
 
-        showDialog(
+        await showDialog(
           context: context,
           builder: (context) {
             return ClaimCouponDialog(
               buyOfferSuccess: offerSuccess,
               shareAction: () async {
                 // share the coupon code
-                await Share.share(
-                  'Hey I claimed a coupon on LIV, here is the code: "${offerSuccess.coupon}"',
-                  subject: 'Coupon Claimed',
+                ShareResult result = await Share.shareWithResult(
+                  subject: shareSubject(offerSuccess),
+                  shareDescription(offerSuccess),
                 );
+
+                if (result.status == ShareResultStatus.success) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context);
+                  creditSocialShareBonus();
+                }
               },
             );
           },
@@ -426,20 +454,41 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     try {
       showLoading();
       Map<String, dynamic> response = await apiService.submitTaskMultipart(
-          user, task!.id.toString(), imagePath, codeReceived);
+        user,
+        task!.id.toString(),
+        imagePath,
+        codeReceived,
+      );
 
       if (response['success'] != null && response['success']) {
-        showDialog(
+        dynamic response = await showDialog(
           context: context,
           builder: (context) {
             return ClaimTaskDialog(
+              task: task!,
               reward: task!.coinsPerAction.toString(),
               fullLink: taskLinkModel!.fullLink!,
             );
           },
         );
+
+        if (response != null && (response['response'] as String).isNotEmpty) {
+          SnackBarType type = response['type'] == 'error'
+              ? SnackBarType.error
+              : SnackBarType.success;
+
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            locator<SnackBarService>().showSnackBarWithString(
+              response['response'],
+              type: type,
+            ),
+          );
+        }
+
+        initialize();
       } else {
-        print(response.toString());
+        devtools.log(response.toString());
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           snackBarService.showSnackBarWithString(
@@ -449,7 +498,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       }
       hideLoading();
     } on CustomException catch (e) {
-      print(e.toString());
+      devtools.log(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -457,7 +506,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         ),
       );
     } catch (e) {
-      print(e.toString());
+      devtools.log(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -467,6 +516,32 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     }
   }
 
+  Widget showCurrentBalanceIfAny() {
+    if (isTask) {
+      return Container();
+    }
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 0, 12, 0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: ColorSelect.appThemeGrey,
+          ),
+          child: ExpandableCard(
+            title: "Current balance",
+            childTitle: "10 LIX",
+            subtitle:
+                "${NumberFormat("###,###", "en_US").format(int.parse(lixWallet?.balance ?? '0'))} LIX",
+            leadingIcon: ImageAssets.dollarFilled,
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
   Future submitTaskWithoutImage(codeReceived) async {
     try {
       showLoading();
@@ -474,18 +549,35 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
           user, task!.id.toString(), codeReceived);
 
       if (response['success'] != null && response['success']) {
-        showDialog(
+        dynamic response = await showDialog(
           context: context,
           builder: (context) {
             return ClaimTaskDialog(
+              task: task!,
               reward: task!.coinsPerAction.toString(),
               fullLink: taskLinkModel!.fullLink.toString(),
               qrImage: task!.qrCodeImage,
             );
           },
         );
+
+        if (response != null && (response['response'] as String).isNotEmpty) {
+          SnackBarType type = response['type'] == 'error'
+              ? SnackBarType.error
+              : SnackBarType.success;
+
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            locator<SnackBarService>().showSnackBarWithString(
+              response['response'],
+              type: type,
+            ),
+          );
+        }
+
+        initialize();
       } else {
-        print(response.toString());
+        devtools.log(response.toString());
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           snackBarService.showSnackBarWithString(
@@ -495,7 +587,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       }
       hideLoading();
     } on CustomException catch (e) {
-      print(e.toString());
+      devtools.log(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -503,7 +595,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         ),
       );
     } catch (e) {
-      print(e.toString());
+      devtools.log(e.toString());
       hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         snackBarService.showSnackBarWithString(
@@ -535,8 +627,66 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
       );
     } else {
       return Container(
-        height: 0,
+        margin: const EdgeInsets.only(left: 16, right: 16),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+        child: SubmitButton(
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Dashboard(
+                  index: 2,
+                ),
+              ),
+            );
+          },
+          text: "Earn LIX",
+          disabled: false,
+          color: Colors.black,
+        ),
       );
     }
+  }
+
+  creditSocialShareBonus() async {
+    try {
+      // ok user shared coupon successfully.
+      // credit 5 lix in user's account.
+      String response = await apiService.creditSocialShareBonus(user);
+      if (response.runtimeType == String) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          snackBarService.showSnackBarWithString(
+            response,
+            type: SnackBarType.success,
+          ),
+        );
+      }
+    } on CustomException catch (e) {
+      devtools.log('$e'); // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackBarService.showSnackBarWithString(
+          e.message,
+        ),
+      );
+    } catch (e) {
+      devtools.log('$e');
+    }
+  }
+
+  String shareSubject(BuyOfferSuccess offer) {
+    if (offer.coupon != null && offer.coupon!.description != null) {
+      return offer.coupon!.description!;
+    }
+
+    return 'Coupon Claimed';
+  }
+
+  String shareDescription(BuyOfferSuccess offer) {
+    if (offer.coupon != null && offer.coupon!.market != null) {
+      return offer.coupon!.market!['offer_link'] ?? '';
+    }
+
+    return '';
   }
 }

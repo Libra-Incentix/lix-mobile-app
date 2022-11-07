@@ -136,8 +136,8 @@ class _MyCouponsState extends State<MyCouponsView> {
                     itemCount: couponsActive.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        onTap: () {
-                          showDialog(
+                        onTap: () async {
+                          dynamic response = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return PurchaseCouponDialog(
@@ -145,6 +145,21 @@ class _MyCouponsState extends State<MyCouponsView> {
                               );
                             },
                           );
+
+                          if (response != null &&
+                              (response['response'] as String).isNotEmpty) {
+                            SnackBarType type = response['type'] == 'error'
+                                ? SnackBarType.error
+                                : SnackBarType.success;
+
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              locator<SnackBarService>().showSnackBarWithString(
+                                response['response'],
+                                type: type,
+                              ),
+                            );
+                          }
                         },
                         tileColor: Colors.white,
                         title: Padding(
@@ -158,8 +173,11 @@ class _MyCouponsState extends State<MyCouponsView> {
                         subtitle: Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Text(
-                            "Expiry date : ${couponExpiryDate(couponsActive[index])}",
-                            style: customFontRegular(13, ColorSelect.greyDark),
+                            getCouponExpiryDate(couponsActive[index]),
+                            style: customFontRegular(
+                              13,
+                              ColorSelect.greyDark,
+                            ),
                           ),
                         ),
                         leading: Container(
@@ -209,15 +227,15 @@ class _MyCouponsState extends State<MyCouponsView> {
             itemCount: couponsUsed.length,
             itemBuilder: (context, index) {
               return ListTile(
-                onTap: () {
-                  showDialog(
+                onTap: () async {
+                  await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return PurchaseCouponDialog(
                         coupon: couponsUsed[index],
                       );
                     },
-                  );
+                  ).then((e) => e ?? '');
                 },
                 tileColor: Colors.white,
                 title: Padding(
@@ -287,6 +305,13 @@ class _MyCouponsState extends State<MyCouponsView> {
       return DateFormat('d, MMM yyyy').format(
         DateTime.parse(coupon.usedDate!),
       );
+    }
+    return '';
+  }
+
+  getCouponExpiryDate(CouponModel coupon) {
+    if (coupon.market != null && coupon.market!['expires_at'] != null) {
+      return "Expiry date : ${couponExpiryDate(coupon)}";
     }
     return '';
   }

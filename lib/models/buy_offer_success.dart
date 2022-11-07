@@ -1,31 +1,33 @@
+import 'package:lix/models/coupon_model.dart';
+
 class BuyOfferSuccess {
-  String? coupon;
-  String? currentUser;
+  CouponModel? coupon;
+  int? amount;
+  String? currency;
   String? benefit;
   String? organisationName;
-  String? currency;
-  int? amount;
-  int? marketId;
 
   BuyOfferSuccess({
     this.coupon,
-    this.currentUser,
+    this.amount,
+    this.currency,
     this.benefit,
     this.organisationName,
-    this.currency,
-    this.amount,
-    this.marketId,
   });
 
   factory BuyOfferSuccess.fromJson(Map<String, dynamic> json) {
+    CouponModel? cM;
+
+    if (json['coupon'] != null) {
+      cM = CouponModel.fromJson(json['coupon']);
+    }
+
     return BuyOfferSuccess(
-      coupon: json['coupon'],
-      currentUser: json['current_user'],
+      coupon: cM,
+      amount: json['amount'],
+      currency: json['currency'],
       benefit: json['benefit'],
       organisationName: json['organisation_name'],
-      currency: json['currency'],
-      amount: json['amount'],
-      marketId: json['market_id'],
     );
   }
 }

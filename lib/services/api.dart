@@ -511,7 +511,10 @@ class APIService {
         ...headers,
         "Authorization": "Bearer ${user.userToken}",
       },
-      body: {"email": user.email!, "proof": codeReceived},
+      body: {
+        "email": user.email!,
+        "proof": codeReceived,
+      },
     );
     var body = jsonDecode(response.body);
     if (response.statusCode == 200) {
@@ -1021,6 +1024,38 @@ class APIService {
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'MyCouponsRetrievalFailed',
+          message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<String> creditSocialShareBonus(User user) async {
+    var response = await http.get(
+      Uri.parse("${apiURL}social/share/bonus"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] && body['data'] != null) {
+        return body['message'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'],
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'SocialShareBonusCreditFailed',
           message: body['message'],
         );
       }

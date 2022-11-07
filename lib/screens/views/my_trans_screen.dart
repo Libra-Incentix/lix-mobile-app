@@ -182,12 +182,14 @@ class _MyTransScreenState extends State<MyTransScreen>
                   child: _selectedIndex == 0
                       ? MyEarnedView(
                           allTransactions: [...allTransactions]
-                              .where((element) => element.type == 'earning')
+                              .where((element) =>
+                                  element.type == 'earning' ||
+                                  element.type == 'social_media_sharing')
                               .toList(),
                         )
                       : MySpentView(
                           allTransactions: [...allTransactions]
-                              .where((element) => element.type != 'earning')
+                              .where((element) => element.type == 'buy offer')
                               .toList(),
                         ),
                 ),

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as devtools show log;
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -8,26 +8,43 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
+import 'package:lix/locator.dart';
+import 'package:lix/models/custom_exception.dart';
+import 'package:lix/models/task_model.dart';
+import 'package:lix/models/user.dart';
 import 'package:lix/screens/views/bottom_tabs/home_screen_styles.dart';
 import 'package:lix/screens/widgets/submit_button.dart';
+import 'package:lix/services/api.dart';
+import 'package:lix/services/helper.dart';
+import 'package:lix/services/snackbar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ClaimTaskDialog extends StatefulWidget {
+  final TaskModel task;
   final String reward;
   final String fullLink;
   final String? qrImage;
-  const ClaimTaskDialog(
-      {Key? key, required this.reward, required this.fullLink, this.qrImage})
-      : super(key: key);
+  const ClaimTaskDialog({
+    Key? key,
+    required this.reward,
+    required this.fullLink,
+    required this.task,
+    this.qrImage,
+  }) : super(key: key);
 
   @override
   State<ClaimTaskDialog> createState() => _ClaimTaskDialogState();
 }
 
 class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
+  late TaskModel task = widget.task;
   late String reward = widget.reward;
+  late User user = locator<HelperService>().getCurrentUser()!;
+  HelperService helperService = locator<HelperService>();
+  APIService apiService = locator<APIService>();
+  SnackBarService snackBarService = locator<SnackBarService>();
   GlobalKey globalKey = GlobalKey();
 
   @override
@@ -90,7 +107,7 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
                   child: Column(
                     children: [
                       Text(
-                        "Earn extra 10 LIX",
+                        "Earn extra 5 LIX",
                         style: textStyleMediumBlack(16),
                         textAlign: TextAlign.center,
                       ),
@@ -111,7 +128,7 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
                                   'Share this task with your friends and earn extra',
                             ),
                             TextSpan(
-                              text: ' 10 LIX',
+                              text: ' 5 LIX',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: ColorSelect.appThemeOrange,
@@ -185,9 +202,17 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
             final file = await File('${tempDir.path}/image.png').create();
             await file.writeAsBytes(pngBytes);
 
-            await Share.shareFiles(['${tempDir.path}/image.png']);
+            ShareResult result = await Share.shareFilesWithResult(
+              ['${tempDir.path}/image.png'],
+              subject: shareSubject(),
+              text: shareDescription(),
+            );
+
+            if (result.status == ShareResultStatus.success) {
+              creditSocialShareBonus();
+            }
           } catch (e) {
-            log(e.toString());
+            devtools.log(e.toString());
           }
         },
       );
@@ -204,12 +229,55 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
             final file = await File('${tempDir.path}/image.png').create();
             await file.writeAsBytes(pngBytes);
 
-            await Share.shareFiles(['${tempDir.path}/image.png']);
+            ShareResult result = await Share.shareFilesWithResult(
+              ['${tempDir.path}/image.png'],
+              subject: shareSubject(),
+              text: shareDescription(),
+            );
+
+            if (result.status == ShareResultStatus.success) {
+              creditSocialShareBonus();
+            }
           } catch (e) {
-            log(e.toString());
+            devtools.log(e.toString());
           }
         },
       );
     }
+  }
+
+  creditSocialShareBonus() async {
+    try {
+      // ok user shared coupon successfully.
+      // credit 5 lix in user's account.
+      String response = await apiService.creditSocialShareBonus(user);
+      if (response.runtimeType == String) {
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context, {
+          "response": response,
+          "type": "success",
+        });
+      }
+    } on CustomException catch (e) {
+      devtools.log('$e');
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context, {
+        "response": e.message,
+        "type": "error",
+      });
+    } catch (e) {
+      devtools.log('$e');
+    }
+  }
+
+  String shareSubject() {
+    return task.title ?? 'Coupon Claimed';
+  }
+
+  String shareDescription() {
+    if (task.description != null) {
+      return task.description ?? '';
+    }
+    return '';
   }
 }
