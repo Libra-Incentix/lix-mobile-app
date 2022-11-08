@@ -1,6 +1,9 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/app/image_assets.dart';
 import 'package:lix/locator.dart';
@@ -75,6 +78,7 @@ class _MyProfileViewState extends State<MyProfileView> {
         // countries = allCountries;
         profileUser = u;
         profileUser!.email = user.email;
+        userImageUrl = profileUser!.avatar!;
         _nameController.text = profileUser!.name!;
         _emailController.text = profileUser!.email!;
         _phoneController.text = profileUser!.phone!;
@@ -145,9 +149,8 @@ class _MyProfileViewState extends State<MyProfileView> {
       // adding token on the same data as well.
       profileUser!.userToken = user.userToken;
 
-      Map<String, dynamic> response = await apiService.updateUserProfile(
-        profileUser!,
-      );
+      Map<String, dynamic> response =
+          await apiService.updateUserProfile(profileUser!, imagePath);
       hideLoading();
 
       if (response['success'] != null) {
@@ -179,6 +182,21 @@ class _MyProfileViewState extends State<MyProfileView> {
     } catch (e) {
       hideLoading();
       log('$e');
+    }
+  }
+
+  String imagePath = "";
+  String imageName = "";
+  String codeReceived = "";
+  String userImageUrl = "";
+  File? image;
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      setState(() => {imagePath = image.path, imageName = image.name});
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
     }
   }
 
@@ -279,22 +297,44 @@ class _MyProfileViewState extends State<MyProfileView> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Column(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 50.0,
-                      backgroundImage: AssetImage(
-                        'assets/images/avatar.png',
-                      ),
                       backgroundColor: Colors.transparent,
+                      child: ClipOval(
+                        child: (imagePath != "")
+                            ? Image.file(
+                                File(imagePath),
+                                height: 100.0,
+                                width: 100.0,
+                                fit: BoxFit.cover,
+                              )
+                            : (userImageUrl != ""
+                                ? Image.network(
+                                    apiService.imagesPath +
+                                        profileUser!.avatar!,
+                                    height: 100.0,
+                                    width: 100.0,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/images/avatar.png',
+                                    height: 100.0,
+                                    width: 100.0,
+                                    fit: BoxFit.cover,
+                                  )),
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    // GestureDetector(
-                    //   behavior: HitTestBehavior.translucent,
-                    //   onTap: () {},
-                    //   child: Text(
-                    //     "Edit",
-                    //     style: textStyleViewAll(14),
-                    //   ),
-                    // ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        pickImage();
+                      },
+                      child: Text(
+                        "Edit",
+                        style: textStyleViewAll(14),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     // gender field...
                     genderField(),

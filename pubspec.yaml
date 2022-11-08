@@ -52,7 +52,6 @@ dependencies:
   intl: ^0.17.0
   webview_flutter: ^3.0.4
   image_picker: ^0.8.6
-  loadmore: ^2.0.1
   # sign_in_with_apple: ^4.1.0
 dev_dependencies:
   flutter_test:

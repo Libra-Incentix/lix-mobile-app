@@ -5,6 +5,7 @@ class User {
   String? email;
   String? password;
   String? phone;
+  String? avatar;
   String? gender;
   String? dateOfBirth;
   int? cityId;
@@ -22,6 +23,7 @@ class User {
     this.email,
     this.password,
     this.phone,
+    this.avatar,
     this.gender,
     this.dateOfBirth,
     this.cityId,
@@ -41,6 +43,7 @@ class User {
       email: json['email'] ?? '',
       password: json['password'] ?? '',
       phone: json['phone'] ?? '',
+      avatar: json['avatar'] ?? '',
       gender: json['gender'] ?? 'male',
       dateOfBirth: json['date_of_birth'] ?? '',
       cityId: json['cityId'] ?? 0,

@@ -57,7 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       showLoading();
       List<MarketOffer> offers = await apiService.allRecommendedDeals(user);
-      List<TaskModel> tasks = await apiService.getGlobalTasks(user);
+      final Map<dynamic, dynamic> tasksMap =
+          await apiService.getGlobalTasks(user, 1);
+      List<TaskModel> tasks = tasksMap['tasks'];
       List<NotificationModel> notifications =
           await apiService.getAllNotifications(user);
       hideLoading();

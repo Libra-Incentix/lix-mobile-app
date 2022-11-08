@@ -34,7 +34,6 @@ class _TaskProofDialogState extends State<TaskProofDialog> {
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image == null) return;
-      final imageTemp = File(image.path);
       setState(() => {imagePath = image.path, imageName = image.name});
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');

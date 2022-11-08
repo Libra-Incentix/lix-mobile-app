@@ -151,8 +151,8 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
                           widget.qrImage! != 'null')
                         Image.memory(
                           const Base64Decoder().convert(widget.qrImage ?? ''),
-                          height: 300,
-                          width: 300,
+                          height: 280,
+                          width: 280,
                         ),
                       const SizedBox(height: 12),
                       SubmitButton(

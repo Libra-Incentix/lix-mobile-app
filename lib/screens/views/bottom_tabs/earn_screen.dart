@@ -9,7 +9,6 @@ import 'package:lix/screens/views/earn_details_screen.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
-import 'package:loadmore/loadmore.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({Key? key}) : super(key: key);
@@ -24,14 +23,18 @@ class _EarnScreenState extends State<EarnScreen> {
   APIService apiService = locator<APIService>();
   SnackBarService snackBarService = locator<SnackBarService>();
   List<TaskModel> allTasks = [];
+  int currentPage = 1;
+  int lastPage = 0;
   bool loading = false;
+  bool loadMore = false;
   late ScrollController controller;
   int count = 15;
 
   showLoading() {
     if (!mounted) return;
     setState(() {
-      loading = true;
+      loading = currentPage == 1 ? true : false;
+      loadMore = currentPage != 1;
     });
   }
 
@@ -39,6 +42,7 @@ class _EarnScreenState extends State<EarnScreen> {
     if (!mounted) return;
     setState(() {
       loading = false;
+      loadMore = false;
     });
   }
 
@@ -52,9 +56,12 @@ class _EarnScreenState extends State<EarnScreen> {
   void handleScrolling() {
     if (controller.offset >= controller.position.maxScrollExtent) {
       print("handle scrolling end");
-      setState(() {
-        count += 10;
-      });
+      if (currentPage != lastPage) {
+        setState(() {
+          currentPage = currentPage + 1;
+        });
+        initialize();
+      }
     }
   }
 
@@ -67,10 +74,14 @@ class _EarnScreenState extends State<EarnScreen> {
   initialize() async {
     try {
       showLoading();
-      List<TaskModel> tasks = await apiService.getGlobalTasks(user);
+      final Map<dynamic, dynamic> responseMap =
+          await apiService.getGlobalTasks(user, currentPage);
+      List<TaskModel> tasks = responseMap['tasks'];
       if (tasks.isNotEmpty && mounted) {
         setState(() {
-          allTasks = tasks;
+          allTasks = [...allTasks, ...tasks];
+          lastPage = responseMap['last_page'];
+          currentPage = responseMap['current_page'];
         });
       }
       hideLoading();
@@ -150,6 +161,10 @@ class _EarnScreenState extends State<EarnScreen> {
                 );
               },
             ),
+      bottomSheet: Container(
+          height: loadMore ? 50 : 0,
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(color: Colors.blue)),
     );
   }
 
@@ -161,6 +176,7 @@ class _EarnScreenState extends State<EarnScreen> {
         'assets/images/no-img.png',
         height: 48,
         width: 48,
+        fit: BoxFit.cover,
       );
     }
 
@@ -168,6 +184,7 @@ class _EarnScreenState extends State<EarnScreen> {
       task.avatar!,
       height: 48,
       width: 48,
+      fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           'assets/images/no-img.png',

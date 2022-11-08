@@ -254,25 +254,34 @@ class APIService {
     }
   }
 
-  Future<Map<String, dynamic>> updateUserProfile(User user) async {
-    Map<String, dynamic> body = {
-      "name": user.name,
-      "phone": user.phone,
-      "gender": user.gender,
-      "date_of_birth": user.dateOfBirth,
-    };
+  Future<Map<String, dynamic>> updateUserProfile(
+      User user, String imagePath) async {
+    Uri url = Uri.parse("${apiURL}user/profile/update");
+    var request = http.MultipartRequest('POST', url);
+    request.fields['name'] = user.name!;
+    request.fields['phone'] = user.phone!;
+    request.fields['gender'] = user.gender!;
+    request.fields['date_of_birth'] = user.dateOfBirth!;
 
-    var response = await http.post(
-      Uri.parse("${apiURL}user/profile/update"),
-      body: body,
-      headers: {
-        ...headers,
-        "Authorization": "Bearer ${user.userToken}",
-      },
-    );
+    if (imagePath.isNotEmpty) {
+      http.MultipartFile file = await http.MultipartFile.fromPath(
+        'avatar',
+        imagePath,
+      );
+      request.files.add(file);
+    }
+
+    Map<String, String> requestHeaders = {
+      "Developer-Token": headers['Developer-Token'] ?? '',
+      "Authorization": "Bearer ${user.userToken}",
+    };
+    request.headers.addAll(requestHeaders);
+
+    var response = await request.send();
+    var byteData = String.fromCharCodes(await response.stream.toBytes());
+    var body = jsonDecode(byteData);
 
     if (response.statusCode == 200) {
-      var body = jsonDecode(response.body);
       if (body['success'] && body['data'] != null) {
         return body;
       } else {
@@ -282,7 +291,6 @@ class APIService {
         );
       }
     } else {
-      var body = jsonDecode(response.body);
       if (body['success'] != null && body['message'] != null) {
         throw CustomException(
           code: 'UpdateProfileFailed',
@@ -479,11 +487,11 @@ class APIService {
       request.files.add(file);
     }
 
-    Map<String, String> headers = {
-      "Developer-Token": "1|OSuvEkhlsRURsCdTDPxshynSvmiMgxeY62TAlC17",
+    Map<String, String> requestHeaders = {
+      "Developer-Token": headers['Developer-Token'] ?? '',
       "Authorization": "Bearer ${user.userToken}",
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(requestHeaders);
 
     var response = await request.send();
     var byteData = String.fromCharCodes(await response.stream.toBytes());
@@ -886,9 +894,9 @@ class APIService {
     }
   }
 
-  Future<List<TaskModel>> getGlobalTasks(User user) async {
+  Future<Map<String, dynamic>> getGlobalTasks(User user, int page) async {
     var response = await http.get(
-      Uri.parse("${apiURL}tasks/global-tasks"),
+      Uri.parse("${apiURL}tasks/global-tasks?page=$page"),
       headers: {
         ...headers,
         "Authorization": "Bearer ${user.userToken}",
@@ -897,9 +905,14 @@ class APIService {
     if (response.statusCode == 200) {
       var body = jsonDecode(response.body);
       if (body['success'] != null && body['data'] != null) {
-        return (body['data']['data'] as List)
-            .map((e) => TaskModel.fromJson(e))
-            .toList();
+        Map<String, dynamic> responseMap = {
+          "current_page": body['data']['meta']['current_page'],
+          "last_page": body['data']['meta']['last_page'],
+          "tasks": (body['data']['data'] as List)
+              .map((e) => TaskModel.fromJson(e))
+              .toList()
+        };
+        return responseMap;
       } else {
         throw CustomException(
           code: 'Error',
