@@ -165,9 +165,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                             });
                           },
                           text: "Show QR Code",
-                          color: showBarCode
-                              ? ColorSelect.lightBlack
-                              : ColorSelect.appThemeGrey,
+                          color: isQRCodeButtonActive(),
                         ),
                         const SizedBox(width: 10),
                         SubmitButton(
@@ -178,9 +176,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                             });
                           },
                           text: "Show Barcode",
-                          color: showBarCode
-                              ? ColorSelect.lightBlack
-                              : ColorSelect.appThemeGrey,
+                          color: isBarCodeButtonActive(),
                         ),
                       ],
                     ),
@@ -193,7 +189,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                       children: [
                         Expanded(
                           child: inputField(
-                            "Enter Coupon code",
+                            "Staff member ID",
                             _confirmInputController,
                             false,
                             context,
@@ -204,9 +200,10 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                         Container(
                           margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                           child: SubmitButton(
-                              onTap: () {},
-                              text: "Verify",
-                              color: ColorSelect.lightBlack),
+                            onTap: () {},
+                            text: "Verify",
+                            color: ColorSelect.lightBlack,
+                          ),
                         ),
                       ],
                     ),
@@ -403,5 +400,21 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
       return coupon.market!['offer_link'] ?? '';
     }
     return '';
+  }
+
+  Color isQRCodeButtonActive() {
+    if (showQrCode) {
+      return ColorSelect.lightBlack.withOpacity(.5);
+    }
+
+    return ColorSelect.lightBlack;
+  }
+
+  Color isBarCodeButtonActive() {
+    if (showBarCode) {
+      return ColorSelect.lightBlack.withOpacity(.5);
+    }
+
+    return ColorSelect.lightBlack;
   }
 }

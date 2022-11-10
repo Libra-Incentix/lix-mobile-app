@@ -173,7 +173,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
       return Image.network(
         height: 50,
         width: 50,
-        fit: BoxFit.cover,
+        fit: BoxFit.fitWidth,
         APIService().imagesPath + (offer.organisation?.avatar ?? ''),
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(

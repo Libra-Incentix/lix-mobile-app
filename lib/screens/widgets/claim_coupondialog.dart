@@ -168,7 +168,7 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                                   });
                                 },
                                 text: "Show QR Code",
-                                color: ColorSelect.lightBlack,
+                                color: isQRCodeButtonActive(),
                               ),
                               const SizedBox(width: 2),
                               SubmitButton(
@@ -179,7 +179,7 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                                   });
                                 },
                                 text: "Show Barcode",
-                                color: ColorSelect.lightBlack,
+                                color: isBarCodeButtonActive(),
                               ),
                             ],
                           ),
@@ -195,7 +195,7 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                       children: [
                         Expanded(
                           child: inputField(
-                            "Enter Coupon code",
+                            "Staff member ID",
                             _confirmInputController,
                             false,
                             context,
@@ -206,9 +206,10 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                         Container(
                           margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                           child: SubmitButton(
-                              onTap: () {},
-                              text: "Verify",
-                              color: ColorSelect.lightBlack),
+                            onTap: () {},
+                            text: "Verify",
+                            color: ColorSelect.lightBlack,
+                          ),
                         ),
                       ],
                     ),
@@ -269,5 +270,21 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
       );
     }
     return Container();
+  }
+
+  Color isQRCodeButtonActive() {
+    if (showQrCode) {
+      return ColorSelect.lightBlack.withOpacity(.5);
+    }
+
+    return ColorSelect.lightBlack;
+  }
+
+  Color isBarCodeButtonActive() {
+    if (showBarCode) {
+      return ColorSelect.lightBlack.withOpacity(.5);
+    }
+
+    return ColorSelect.lightBlack;
   }
 }

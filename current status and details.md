@@ -60,3 +60,39 @@ We do not have country-code showing in the ap - there is an API for this info - 
 Robin will change the word DEALS to MARKETPLACE throughout ##DONE
 
 Timmy will create an email notification for account deactivation and deletion
+
+Actions in priority order: 
+1. LIX logo on the app icon is not the correct dimensions- its too stretched - Robin to fix
+2. LIX logo inside the app is not the correct dimensions- its too stretched - Robin to fix
+3. When using the transfer, fund and withdraw buttons, the user details should already be visible in the web app, instead of having to add the credentials again - Timmy to do
+4. Robin to change to “staff member ID” Timmy will provide the sample key for the staff member ID
+5. We need find a better way to capture the telephone number
+
+1. LOGOs inside the app are not the correct dimensions. Need to auto adjust logo images
+LOGOs inside the app are not the correct dimensions. Dimensions of images need to auto adjust when a user uploads them. We want to make sure it is rendering always the whole image or majority of the image, while focusing on center of it.
+
+2. LIX logo on the app icon it is not the correct dimensions, too stretched
+LIX logo on the app icon it is not the correct dimensions, too stretched. Needs to be aligned with LIX logo standard
+
+Original Logo
+https://we.tl/t-g2Dudfa6PC
+
+iOS icons sizes
+29x29
+40x40
+58x58
+60x60
+80x80
+87x87
+120x120
+180x180
+1024x1024
+20x20
+76x76
+
+Android Sizes
+72x72
+48x48
+96x96
+144x144
+192x192

@@ -13,11 +13,11 @@ import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
 class APIService {
-  final String _baseURL = 'http://app2.libraincentix.com/api/v1/';
-  final String imagesPath = "http://app2.libraincentix.com/images/";
-  final String dealImagesPath = "http://app2.libraincentix.com/";
+  final String _baseURL = 'http://app.libraincentix.com/api/v1/';
+  final String imagesPath = "http://app.libraincentix.com/images/";
+  final String dealImagesPath = "http://app.libraincentix.com/";
   final String termsPath = "https://app.libraincentix.com/terms/service";
-  final String privacyPath = 'https://app2.libraincentix.com/privacy';
+  final String privacyPath = 'https://app.libraincentix.com/privacy';
 
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
