@@ -13,11 +13,11 @@ import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
 class APIService {
-  final String _baseURL = 'http://app.libraincentix.com/api/v1/';
-  final String imagesPath = "http://app.libraincentix.com/images/";
-  final String dealImagesPath = "http://app.libraincentix.com/";
-  final String termsPath = "https://app.libraincentix.com/terms/service";
-  final String privacyPath = 'https://app.libraincentix.com/privacy';
+  final String _baseURL = 'http://app2.libraincentix.com/api/v1/';
+  final String imagesPath = "http://app2.libraincentix.com/images/";
+  final String dealImagesPath = "http://app2.libraincentix.com/";
+  final String termsPath = "https://app2.libraincentix.com/terms/service";
+  final String privacyPath = 'https://app2.libraincentix.com/privacy';
 
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
@@ -1076,6 +1076,56 @@ class APIService {
         throw CustomException(
           code: 'SocialShareBonusCreditFailed',
           message: body['message'],
+        );
+      }
+
+      throw Exception('Error');
+    }
+  }
+
+  Future<bool> approveCouponByStaff(
+    User user,
+    String couponCode,
+    String organizationId,
+    String memberKey,
+  ) async {
+    var response = await http.post(
+      Uri.parse("${apiURL}approve-coupon-by-staff"),
+      headers: {
+        ...headers,
+        "Authorization": "Bearer ${user.userToken}",
+      },
+      body: {
+        "coupon_code": couponCode,
+        "organisation_id": organizationId,
+        "memberKey": memberKey,
+      },
+    );
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null) {
+        return body['success'];
+      } else {
+        throw CustomException(
+          code: 'Error',
+          message: body['message'] ?? '',
+        );
+      }
+    } else {
+      var body = jsonDecode(response.body);
+      if (body['success'] != null && body['message'] != null) {
+        throw CustomException(
+          code: 'ApproveCouponRequestFailed',
+          message: body['message'],
+        );
+      }
+
+      if (body['errors'] != null &&
+          body['errors'].runtimeType == (List<dynamic>) &&
+          (body['errors'] as List<dynamic>).isNotEmpty) {
+        throw CustomException(
+          code: 'ChangePasswordRequestFailed',
+          message: body['errors'][0]['message'],
         );
       }
 

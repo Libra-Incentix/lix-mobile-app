@@ -1,8 +1,5 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:developer' as devtools show log;
+import 'dart:developer' as devtools show log, inspect;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +15,7 @@ import 'package:lix/screens/widgets/submit_button.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:lix/services/snackbar.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PurchaseCouponDialog extends StatefulWidget {
@@ -38,13 +35,24 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
   late User user = locator<HelperService>().getCurrentUser()!;
   HelperService helperService = locator<HelperService>();
   APIService apiService = locator<APIService>();
-  final TextEditingController _confirmInputController = TextEditingController();
+  final TextEditingController staffMemberInputController =
+      TextEditingController();
   bool showQrCode = false;
   bool showBarCode = false;
+  bool loading = false;
+  String displayedMessage = '';
+  bool showSuccessMessage = false;
+  bool showErrorMessage = false;
+
+  @override
+  dispose() {
+    staffMemberInputController.dispose();
+    super.dispose();
+  }
 
   onTextChange(String value) {
     setState(() {
-      _confirmInputController.text = value;
+      staffMemberInputController.text = value;
     });
   }
 
@@ -53,7 +61,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
     return Dialog(
       elevation: 0.0,
       backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.all(20),
+      // insetPadding: const EdgeInsets.all(20),
       child: dialogContent(context),
     );
   }
@@ -61,223 +69,307 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
   Widget dialogContent(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0.0),
-      child: SingleChildScrollView(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: loading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Stack(
                 children: <Widget>[
-                  const SizedBox(height: 40),
-                  Image.asset(
-                    ImageAssets.greenCheckFill,
-                    height: 36,
-                    width: 36,
-                  ),
-                  const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Text(
-                      coupon.description ?? '',
-                      style: textStyleBoldBlack(24),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Coupon successfully purchased",
-                    style: textStyleRegularBlack(14),
-                    textAlign: TextAlign.center,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(24),
-                    child: DottedBorder(
-                      borderType: BorderType.RRect,
-                      radius: const Radius.circular(2),
-                      dashPattern: const [8, 8],
-                      strokeWidth: 1,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 18),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Text(
-                              coupon.coupon!,
-                              style: textStyleBoldBlack(18),
-                            ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        const SizedBox(height: 40),
+                        Image.asset(
+                          ImageAssets.greenCheckFill,
+                          height: 36,
+                          width: 36,
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
                           ),
-                          Container(
-                            transform: Matrix4.translationValues(1.8, 1.0, 0.0),
-                            alignment: Alignment.centerRight,
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: 23,
-                              width: 44,
-                              decoration: const BoxDecoration(
-                                color: ColorSelect.lightBlack,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(2),
+                          child: Text(
+                            coupon.description ?? '',
+                            style: textStyleBoldBlack(24),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Coupon successfully purchased",
+                          style: textStyleRegularBlack(14),
+                          textAlign: TextAlign.center,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.all(24),
+                          child: DottedBorder(
+                            borderType: BorderType.RRect,
+                            radius: const Radius.circular(2),
+                            dashPattern: const [8, 8],
+                            strokeWidth: 1,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 18),
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    coupon.coupon!,
+                                    style: textStyleBoldBlack(18),
+                                  ),
                                 ),
-                              ),
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: () async {
-                                  await Clipboard.setData(
-                                    ClipboardData(
-                                      text: coupon.coupon,
+                                Container(
+                                  transform:
+                                      Matrix4.translationValues(1.8, 1.0, 0.0),
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 23,
+                                    width: 44,
+                                    decoration: const BoxDecoration(
+                                      color: ColorSelect.lightBlack,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(2),
+                                      ),
                                     ),
-                                  );
-                                },
-                                child: Text(
-                                  'copy',
-                                  style: textStyleRegular(12),
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.translucent,
+                                      onTap: () async {
+                                        await Clipboard.setData(
+                                          ClipboardData(
+                                            text: coupon.coupon,
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        'copy',
+                                        style: textStyleRegular(12),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 0,
-                      bottom: 12,
-                      left: 24,
-                      right: 24,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SubmitButton(
-                          onTap: () {
-                            setState(() {
-                              showQrCode = !showQrCode;
-                              showBarCode = false;
-                            });
-                          },
-                          text: "Show QR Code",
-                          color: isQRCodeButtonActive(),
-                        ),
-                        const SizedBox(width: 10),
-                        SubmitButton(
-                          onTap: () {
-                            setState(() {
-                              showBarCode = !showBarCode;
-                              showQrCode = false;
-                            });
-                          },
-                          text: "Show Barcode",
-                          color: isBarCodeButtonActive(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  showQrOrBarcodeImage(),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: inputField(
-                            "Staff member ID",
-                            _confirmInputController,
-                            false,
-                            context,
-                            onTextChange,
-                            TextInputType.name,
                           ),
                         ),
                         Container(
-                          margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                          child: SubmitButton(
-                            onTap: () {},
-                            text: "Verify",
-                            color: ColorSelect.lightBlack,
+                          margin: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 12,
+                            left: 24,
+                            right: 24,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    color: ColorSelect.appThemeGrey,
-                    margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Share & Earn",
-                          style: textStyleMediumBlack(16),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 4),
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: const TextSpan(
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 3, 3, 3),
-                              fontSize: 14,
-                              fontFamily: 'Intern',
-                              height: 1.7,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text:
-                                    'Share this discount offer with your friends and earn',
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      showQrCode = !showQrCode;
+                                      showBarCode = false;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 15,
+                                      horizontal: 6,
+                                    ),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: isQRCodeButtonActive(),
+                                    ),
+                                    child: const Text(
+                                      'Show QR Code',
+                                      overflow: TextOverflow.ellipsis,
+                                      textScaleFactor: 1.0,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              TextSpan(
-                                text: ' 5 LIX',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: ColorSelect.appThemeOrange,
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      showBarCode = !showBarCode;
+                                      showQrCode = false;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 15,
+                                      horizontal: 6,
+                                    ),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: isBarCodeButtonActive(),
+                                    ),
+                                    child: const Text(
+                                      "Show Barcode",
+                                      overflow: TextOverflow.ellipsis,
+                                      textScaleFactor: 1.0,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        showQrOrBarcodeImage(),
+                        coupon.isUsed == 1
+                            ? Container()
+                            : Container(
+                                margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: inputField(
+                                        "Staff member ID",
+                                        staffMemberInputController,
+                                        false,
+                                        context,
+                                        onTextChange,
+                                        TextInputType.name,
+                                      ),
+                                    ),
+                                    Container(
+                                      margin:
+                                          const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                                      child: SubmitButton(
+                                        onTap: () {
+                                          if (staffMemberInputController
+                                              .text.isNotEmpty) {
+                                            approveCoupon();
+                                          } else {
+                                            setState(() {
+                                              displayedMessage =
+                                                  'Please enter a staff member id for verification.';
+                                              showErrorMessage = true;
+                                              showSuccessMessage = false;
+                                            });
+                                          }
+                                        },
+                                        text: "Verify",
+                                        color: ColorSelect.lightBlack,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                        showErrorMessage
+                            ? Container(
+                                margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                                child: Text(
+                                  displayedMessage,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                        showSuccessMessage
+                            ? Container(
+                                margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                                child: Text(
+                                  displayedMessage,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              )
+                            : Container(),
                         const SizedBox(height: 12),
-                        showShareNowButton(),
+                        Container(
+                          color: ColorSelect.appThemeGrey,
+                          margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Share & Earn",
+                                style: textStyleMediumBlack(16),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 4),
+                              RichText(
+                                textAlign: TextAlign.center,
+                                text: const TextSpan(
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 3, 3, 3),
+                                    fontSize: 14,
+                                    fontFamily: 'Intern',
+                                    height: 1.7,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text:
+                                          'Share this discount offer with your friends and earn',
+                                    ),
+                                    TextSpan(
+                                      text: ' 5 LIX',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorSelect.appThemeOrange,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              showShareNowButton(),
+                            ],
+                          ),
+                        ),
                       ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(
-                  Icons.close,
-                  size: 24,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   Widget showShareNowButton() {
-    if (coupon.isUsed == 1 && coupon.isActive == 0) {
-      return Container();
-    }
+    // if (coupon.isUsed == 1) {
+    //   return Container();
+    // }
     return SubmitButton(
       onTap: shareCouponCode,
       text: "Share Now",
@@ -326,37 +418,6 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
   }
 
   shareCouponCode() async {
-    // if (doesSharingCodeAvailable()) {
-    //   Timer(
-    //     const Duration(seconds: 1),
-    //     () async {
-    //       try {
-    //         Uint8List byteData;
-    //         byteData = const Base64Decoder().convert(
-    //           sharingCode().isNotEmpty ? sharingCode() : '',
-    //         );
-    //         Uint8List pngBytes = byteData.buffer.asUint8List();
-
-    //         final tempDir = await getTemporaryDirectory();
-    //         final file = await File('${tempDir.path}/image.png').create();
-    //         await file.writeAsBytes(pngBytes);
-
-    //         ShareResult result = await Share.shareFilesWithResult(
-    //           ['${tempDir.path}/image.png'],
-    //           subject: shareSubject(),
-    //           text: shareDescription(),
-    //         );
-
-    //         if (result.status == ShareResultStatus.success) {
-    //           creditSocialShareBonus();
-    //         }
-    //         return;
-    //       } catch (e) {
-    //         devtools.log(e.toString());
-    //       }
-    //     },
-    //   );
-    // } else {
     ShareResult result = await Share.shareWithResult(
       subject: shareSubject(),
       shareDescription(),
@@ -365,7 +426,6 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
     if (result.status == ShareResultStatus.success) {
       creditSocialShareBonus();
     }
-    // }
   }
 
   creditSocialShareBonus() async {
@@ -416,5 +476,63 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
     }
 
     return ColorSelect.lightBlack;
+  }
+
+  showLoading() {
+    setState(() {
+      if (!mounted) return;
+      loading = true;
+    });
+  }
+
+  hideLoading() {
+    setState(() {
+      if (!mounted) return;
+      loading = false;
+    });
+  }
+
+  resetErrorMessage() {
+    setState(() {
+      showErrorMessage = false;
+      displayedMessage = '';
+    });
+  }
+
+  Future approveCoupon() async {
+    resetErrorMessage();
+    String couponCode = coupon.coupon!;
+    int organizationId = coupon.market!['created_by_organisation']['id'] ?? 0;
+    String staffMemberId = staffMemberInputController.text;
+
+    try {
+      showLoading();
+      dynamic response = await apiService.approveCouponByStaff(
+        user,
+        couponCode,
+        organizationId.toString(),
+        staffMemberId,
+      );
+      hideLoading();
+
+      if (response) {
+        setState(() {
+          showErrorMessage = false;
+          showSuccessMessage = true;
+          displayedMessage = "Coupon was successfully marked as used";
+        });
+      }
+    } on CustomException catch (e) {
+      devtools.log('$e');
+      hideLoading();
+      setState(() {
+        showErrorMessage = true;
+        showSuccessMessage = false;
+        displayedMessage = e.message;
+      });
+    } catch (e) {
+      devtools.log('$e');
+      hideLoading();
+    }
   }
 }
