@@ -13,18 +13,18 @@ import 'package:lix/models/user.dart';
 import 'package:lix/models/wallet_details.dart';
 
 class APIService {
-  final String _baseURL = 'http://app2.libraincentix.com/api/v1/';
-  final String imagesPath = "http://app2.libraincentix.com/images/";
-  final String dealImagesPath = "http://app2.libraincentix.com/";
-  final String termsPath = "https://app2.libraincentix.com/terms/service";
-  final String privacyPath = 'https://app2.libraincentix.com/privacy';
+  final String _baseURL = 'https://app.libraincentix.com/api/v1/';
+  final String imagesPath = "https://app.libraincentix.com/images/";
+  final String dealImagesPath = "https://app.libraincentix.com/";
+  final String termsPath = "https://app.libraincentix.com/terms/service";
+  final String privacyPath = 'https://app.libraincentix.com/privacy';
 
   String apiURL = '';
   final Map<String, String> _jsonHeader = {
     "Content-Type": "application/json",
   };
   final Map<String, String> headers = {
-    "Developer-Token": "2|UEY39tNcLCJxeRwr5iOqjVsmmp4e9Ig1KDEV2qjz",
+    "Developer-Token": "2|D2UC16gh81iwIX0MtRX53yBudnArJjmKeYeGwiI9",
     "accept": "application/json",
   };
 

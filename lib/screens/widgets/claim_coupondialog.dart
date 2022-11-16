@@ -257,7 +257,7 @@ class _ClaimCouponDialogState extends State<ClaimCouponDialog> {
                                 child: inputField(
                                   "Staff member ID",
                                   staffMemberInputController,
-                                  false,
+                                  true,
                                   context,
                                   onTextChange,
                                   TextInputType.name,

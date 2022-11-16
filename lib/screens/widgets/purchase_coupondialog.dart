@@ -246,7 +246,7 @@ class _PurchaseCouponDialogState extends State<PurchaseCouponDialog> {
                                       child: inputField(
                                         "Staff member ID",
                                         staffMemberInputController,
-                                        false,
+                                        true,
                                         context,
                                         onTextChange,
                                         TextInputType.name,

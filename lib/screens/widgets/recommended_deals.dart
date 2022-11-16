@@ -102,6 +102,14 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                         height: 160,
                         alignment: Alignment.bottomLeft,
                         decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 4,
+                              color: Colors.black.withOpacity(.2),
+                              spreadRadius: 2,
+                              offset: const Offset(2, 4),
+                            ),
+                          ],
                           image: DecorationImage(
                             image: provideDealImage(
                               allOffers[index],
