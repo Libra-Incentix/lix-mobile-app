@@ -152,12 +152,12 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
     } on CustomException catch (e) {
+      hideLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         locator<SnackBarService>().showSnackBarWithString(
           e.message,
         ),
       );
-      hideLoading();
     } catch (e) {
       debugPrint('$e');
       hideLoading();

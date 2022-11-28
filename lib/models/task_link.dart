@@ -18,6 +18,7 @@ class TaskLinkModel {
   String? createdAt;
   int? userId;
   TaskModel? task;
+  String? itemId;
 
   TaskLinkModel({
     this.id,
@@ -37,9 +38,13 @@ class TaskLinkModel {
     this.createdAt,
     this.userId,
     this.task,
+    this.itemId,
   });
 
-  factory TaskLinkModel.fromJson(Map<String, dynamic> json) {
+  factory TaskLinkModel.fromJson(
+    Map<String, dynamic> json, {
+    String? itemId,
+  }) {
     TaskModel? taskModel;
     if (json['task'] != null) {
       taskModel = TaskModel.fromJson(json['task']);
@@ -61,6 +66,7 @@ class TaskLinkModel {
       createdAt: json['created_at'],
       userId: json['user_id'],
       task: taskModel,
+      itemId: itemId ?? '',
     );
   }
 }

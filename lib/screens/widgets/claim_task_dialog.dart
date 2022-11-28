@@ -138,22 +138,7 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      if (widget.fullLink != 'null')
-                        RepaintBoundary(
-                          key: globalKey,
-                          child: QrImage(
-                            data: widget.fullLink,
-                            size: 300,
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
-                      if (widget.qrImage!.isNotEmpty &&
-                          widget.qrImage! != 'null')
-                        Image.memory(
-                          const Base64Decoder().convert(widget.qrImage ?? ''),
-                          height: 280,
-                          width: 280,
-                        ),
+                      showQRCode(),
                       const SizedBox(height: 12),
                       SubmitButton(
                         onTap: saveAndShareQR,
@@ -279,5 +264,28 @@ class _ClaimTaskDialogState extends State<ClaimTaskDialog> {
       return task.description ?? '';
     }
     return '';
+  }
+
+  Widget showQRCode() {
+    if (widget.qrImage!.isNotEmpty && widget.qrImage! != 'null') {
+      return Image.memory(
+        const Base64Decoder().convert(widget.qrImage ?? ''),
+        height: 280,
+        width: 280,
+      );
+    }
+
+    if (widget.fullLink != 'null') {
+      return RepaintBoundary(
+        key: globalKey,
+        child: QrImage(
+          data: widget.fullLink,
+          size: 280,
+          backgroundColor: Colors.white,
+        ),
+      );
+    }
+
+    return Container();
   }
 }

@@ -458,6 +458,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
         task!.id.toString(),
         imagePath,
         codeReceived,
+        taskLinkModel!.itemId!,
       );
 
       if (response['success'] != null && response['success']) {
@@ -468,6 +469,7 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
               task: task!,
               reward: task!.coinsPerAction.toString(),
               fullLink: taskLinkModel!.fullLink!,
+              qrImage: task!.qrCodeImage,
             );
           },
         );
@@ -546,7 +548,11 @@ class _EarnDetailsScreenState extends State<EarnDetailsScreen> {
     try {
       showLoading();
       Map<String, dynamic> response = await apiService.submitTaskPost(
-          user, task!.id.toString(), codeReceived);
+        user,
+        task!.id.toString(),
+        codeReceived,
+        taskLinkModel!.itemId!,
+      );
 
       if (response['success'] != null && response['success']) {
         dynamic response = await showDialog(

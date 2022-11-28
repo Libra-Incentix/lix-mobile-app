@@ -106,6 +106,7 @@ class _ScanQrViewState extends State<ScanQrView> {
               result['data']['link_type'] == 'task') {
             TaskLinkModel tlModel = TaskLinkModel.fromJson(
               result['data']['link'],
+              itemId: result['data']['item_id'],
             );
 
             tlModel.fullLink = scanResult!.rawContent;

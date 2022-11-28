@@ -19,7 +19,7 @@ import 'package:lix/services/api.dart';
 import 'package:lix/services/helper.dart';
 import 'package:lix/services/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -40,15 +40,15 @@ class _LoginViewState extends State<LoginView> {
   bool loading = false;
   bool isRegistered = false;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Optional clientId
-    clientId:
-        '68859954393-1h6a8thjnh8615bgt1ukiquv1piengem.apps.googleusercontent.com',
-    scopes: <String>[
-      'email',
-      'https://www.googleapis.com/auth/contacts.readonly',
-    ],
-  );
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(
+  //   // Optional clientId
+  //   clientId:
+  //       '68859954393-1h6a8thjnh8615bgt1ukiquv1piengem.apps.googleusercontent.com',
+  //   scopes: <String>[
+  //     'email',
+  //     'https://www.googleapis.com/auth/contacts.readonly',
+  //   ],
+  // );
 
   showLoading() {
     setState(() {
@@ -104,34 +104,34 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Future<void> loginWithGoogle() async {
-    try {
-      showLoading();
-      GoogleSignInAccount? user = await _googleSignIn.signIn();
+  // Future<void> loginWithGoogle() async {
+  //   try {
+  //     showLoading();
+  //     GoogleSignInAccount? user = await _googleSignIn.signIn();
 
-      if (user != null) {
-        GoogleSignInAuthentication googleSignInAuthentication =
-            await user.authentication;
+  //     if (user != null) {
+  //       GoogleSignInAuthentication googleSignInAuthentication =
+  //           await user.authentication;
 
-        if (googleSignInAuthentication.accessToken != null) {
-          dynamic response = await apiServices.socialLogin(
-            googleSignInAuthentication.accessToken!,
-          );
-          devtools.inspect(response);
-        }
-      }
-      hideLoading();
-    } on CustomException catch (e) {
-      hideLoading();
-      devtools.log('$e');
-    } catch (e) {
-      devtools.log('$e');
-      hideLoading();
-    }
-    // if (user?.email != null) {
-    //   _emailController.text = user?.email ?? '';
-    // }
-  }
+  //       if (googleSignInAuthentication.accessToken != null) {
+  //         dynamic response = await apiServices.socialLogin(
+  //           googleSignInAuthentication.accessToken!,
+  //         );
+  //         devtools.inspect(response);
+  //       }
+  //     }
+  //     hideLoading();
+  //   } on CustomException catch (e) {
+  //     hideLoading();
+  //     devtools.log('$e');
+  //   } catch (e) {
+  //     devtools.log('$e');
+  //     hideLoading();
+  //   }
+  //   // if (user?.email != null) {
+  //   //   _emailController.text = user?.email ?? '';
+  //   // }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +198,7 @@ class _LoginViewState extends State<LoginView> {
                         TextButton(
                           onPressed: () async {
                             Uri url = Uri.parse(
-                                'http://app2.libraincentix.com/password/reset');
+                                'http://app.libraincentix.com/password/reset');
 
                             bool canLaunch = await canLaunchUrl(url);
 
@@ -217,39 +217,39 @@ class _LoginViewState extends State<LoginView> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2.5,
-                          height: 1,
-                          color: Colors.black,
-                        ),
-                        Text(
-                          "OR",
-                          style: textStyleBoldBlack(14),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2.5,
-                          height: 1,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 40),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Container(
+                    //       width: MediaQuery.of(context).size.width / 2.5,
+                    //       height: 1,
+                    //       color: Colors.black,
+                    //     ),
+                    //     Text(
+                    //       "OR",
+                    //       style: textStyleBoldBlack(14),
+                    //     ),
+                    //     Container(
+                    //       width: MediaQuery.of(context).size.width / 2.5,
+                    //       height: 1,
+                    //       color: Colors.black,
+                    //     ),
+                    //   ],
+                    // ),
+                    // const SizedBox(height: 40),
                     // ImageButton(
                     //   onTap: () {},
                     //   text: 'Continue with Apple',
                     //   buttonIcon: ImageAssets.appleLogoButton,
                     // ),
                     // const SizedBox(height: 16),
-                    ImageButton(
-                      onTap: () {
-                        loginWithGoogle();
-                      },
-                      text: 'Continue with Google',
-                      buttonIcon: ImageAssets.googleLogoButton,
-                    ),
+                    // ImageButton(
+                    //   onTap: () {
+                    //     loginWithGoogle();
+                    //   },
+                    //   text: 'Continue with Google',
+                    //   buttonIcon: ImageAssets.googleLogoButton,
+                    // ),
                     // const SizedBox(height: 16),
                     // ImageButton(
                     //   onTap: () {},

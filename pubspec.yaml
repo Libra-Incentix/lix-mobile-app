@@ -37,14 +37,11 @@ dependencies:
   otp_text_field: ^1.1.1
   provider: ^6.0.0
   dotted_border: ^2.0.0+2
-  mobile_scanner: ^2.0.0
   shared_preferences: ^2.0.15
   get_it: ^7.2.0
-  google_sign_in: ^5.4.2
   http: ^0.13.5
   url_launcher: ^6.1.5
   barcode_scan2: ^4.2.1
-  scan: ^1.6.0
   flutter_widget_from_html: ^0.8.5
   share_plus: ^4.4.0
   qr_flutter: ^4.0.0

@@ -141,6 +141,15 @@ class APIService {
         );
       }
 
+      if (body['errors'] != null &&
+          body['errors'].runtimeType == (List<dynamic>) &&
+          (body['errors'] as List<dynamic>).isNotEmpty) {
+        throw CustomException(
+          code: 'RegistrationFailed',
+          message: body['errors'][0]['message'],
+        );
+      }
+
       throw Exception('Error');
     }
   }
@@ -474,11 +483,17 @@ class APIService {
   }
 
   Future<Map<String, dynamic>> submitTaskMultipart(
-      User user, String taskId, String imagePath, String codeReceived) async {
+    User user,
+    String taskId,
+    String imagePath,
+    String codeReceived,
+    String itemId,
+  ) async {
     Uri url = Uri.parse("${apiURL}tasks/activity/${taskId}/submit");
     var request = http.MultipartRequest('POST', url);
     request.fields['email'] = user.email!;
     request.fields['proof'] = codeReceived;
+    request.fields['item_id'] = itemId;
     if (imagePath.isNotEmpty) {
       http.MultipartFile file = await http.MultipartFile.fromPath(
         'proof_image',
@@ -518,7 +533,11 @@ class APIService {
   }
 
   Future<Map<String, dynamic>> submitTaskPost(
-      User user, String taskId, String codeReceived) async {
+    User user,
+    String taskId,
+    String codeReceived,
+    String itemId,
+  ) async {
     var response = await http.post(
       Uri.parse("${apiURL}tasks/activity/${taskId}/submit"),
       headers: {
@@ -528,6 +547,7 @@ class APIService {
       body: {
         "email": user.email!,
         "proof": codeReceived,
+        "item_id": itemId,
       },
     );
     var body = jsonDecode(response.body);
@@ -894,7 +914,10 @@ class APIService {
     }
   }
 
-  Future<Map<String, dynamic>> getGlobalTasks(User user, int page) async {
+  Future<Map<String, dynamic>> getGlobalTasks(
+    User user,
+    int page,
+  ) async {
     var response = await http.get(
       Uri.parse("${apiURL}tasks/global-tasks?page=$page"),
       headers: {
