@@ -224,7 +224,7 @@ class _MoreScreenState extends State<MoreScreen> {
         lixWallet!.id!,
       );
       hideLoading();
-      if ((link.contains('http://') || link.contains('https://'))) {
+      if (link.contains('https://')) {
         Uri url = Uri.parse(link);
         if (await canLaunchUrl(url)) {
           await launchUrl(url);
@@ -248,7 +248,7 @@ class _MoreScreenState extends State<MoreScreen> {
       );
 
       hideLoading();
-      if ((link.contains('http://') || link.contains('https://'))) {
+      if (link.contains('https://')) {
         Uri url = Uri.parse(link);
         if (await canLaunchUrl(url)) {
           await launchUrl(url);
@@ -271,7 +271,7 @@ class _MoreScreenState extends State<MoreScreen> {
         lixWallet!.id!,
       );
       hideLoading();
-      if ((link.contains('http://') || link.contains('https://'))) {
+      if (link.contains('https://')) {
         Uri url = Uri.parse(link);
         if (await canLaunchUrl(url)) {
           await launchUrl(url);

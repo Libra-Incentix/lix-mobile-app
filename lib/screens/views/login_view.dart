@@ -198,7 +198,7 @@ class _LoginViewState extends State<LoginView> {
                         TextButton(
                           onPressed: () async {
                             Uri url = Uri.parse(
-                                'http://app.libraincentix.com/password/reset');
+                                'https://app.libraincentix.com/password/reset');
 
                             bool canLaunch = await canLaunchUrl(url);
 
