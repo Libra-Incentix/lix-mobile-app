@@ -102,6 +102,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                         height: 160,
                         alignment: Alignment.bottomLeft,
                         decoration: BoxDecoration(
+                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
                               blurRadius: 4,
@@ -114,7 +115,7 @@ class _RecommendedDealsState extends State<RecommendedDeals> {
                             image: provideDealImage(
                               allOffers[index],
                             ),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                           borderRadius: BorderRadius.circular(4),
                         ),

@@ -184,7 +184,7 @@ class _EarnScreenState extends State<EarnScreen> {
       task.avatar!,
       height: 48,
       width: 48,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           'assets/images/no-img.png',

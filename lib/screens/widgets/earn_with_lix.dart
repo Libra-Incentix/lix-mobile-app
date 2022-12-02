@@ -94,7 +94,7 @@ class _EarnWithLixState extends State<EarnWithLix> {
                   ),
                   leading: Image(
                     image: provideImage(allTasks[index]),
-                    fit: BoxFit.fitHeight,
+                    fit: BoxFit.contain,
                     height: 50,
                     width: 50,
                   ),
