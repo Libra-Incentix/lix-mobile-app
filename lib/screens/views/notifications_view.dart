@@ -2,6 +2,7 @@ import 'dart:developer' as devtools show log;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lix/app/color_select.dart';
 import 'package:lix/locator.dart';
 import 'package:lix/models/custom_exception.dart';
@@ -148,7 +149,7 @@ class _NotificationsViewState extends State<NotificationsView> {
                       bottom: 4,
                     ),
                     child: Text(
-                      _notifications[index].title ?? '',
+                      Bidi.stripHtmlIfNeeded(_notifications[index].title ?? ''),
                       style: textStyleBoldBlack(15),
                     ),
                   ),
